@@ -1140,7 +1140,7 @@ a.abrow:hover .aext{color:var(--cyan)}
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.25";
+const VERSION="3.0.0-dev.26";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1204,12 +1204,12 @@ fr:{
   nav_prev:"Onglets précédents", nav_next:"Onglets suivants",
   manual:"Foreuse manuelle", per_click:"par clic",
   kpi_ore:"Minerai", kpi_rate:"Production", kpi_am:"Antimatière", kpi_mult:"Multiplicateur",
-  sub_total:"cycle / total : <span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
-  sub_total_s:"<span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
+  sub_total:"cycle · total : <span class=\"nb\"><b>{0}</b> · <b>{1}</b></span>",
+  sub_total_s:"<span class=\"nb\"><b>{0}</b> · <b>{1}</b></span>",
   sub_total_t:"minerai du cycle en cours / total extrait depuis le début",
   sub_click:"clic : <b>+{0}</b>",
   sub_next:"<b>+{0}</b> prêt · cycle #{1}{2}",
-  sub_next_s:"<b>+{0}</b>{2}",
+  sub_next_s:"<b>+{0}</b> · #{1}{2}",
   sub_cycle:"cycle #{0}{1}",
   sub_cycle_s:"#{0}{1}",
   sub_manque:" · <b>−{0}</b>",
@@ -1361,12 +1361,12 @@ en:{
   nav_prev:"Previous tabs", nav_next:"Next tabs",
   manual:"Manual drill", per_click:"per click",
   kpi_ore:"Ore", kpi_rate:"Output", kpi_am:"Antimatter", kpi_mult:"Multiplier",
-  sub_total:"cycle / total: <span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
-  sub_total_s:"<span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
+  sub_total:"cycle · total: <span class=\"nb\"><b>{0}</b> · <b>{1}</b></span>",
+  sub_total_s:"<span class=\"nb\"><b>{0}</b> · <b>{1}</b></span>",
   sub_total_t:"ore mined this cycle / total mined since the start",
   sub_click:"click: <b>+{0}</b>",
   sub_next:"<b>+{0}</b> ready · cycle #{1}{2}",
-  sub_next_s:"<b>+{0}</b>{2}",
+  sub_next_s:"<b>+{0}</b> · #{1}{2}",
   sub_cycle:"cycle #{0}{1}",
   sub_cycle_s:"#{0}{1}",
   sub_manque:" · <b>−{0}</b>",
@@ -3344,9 +3344,10 @@ function renderHeader(){
   const manque=Math.max(0,amMinerai(g+1)-S.runOre);
   const mq=manque>0?t("sub_manque",fmt(manque)):"";
   /* Variantes courtes sur écran étroit : mesuré, « cycle #5 · −5.67B » demande
-     94 px pour 79 disponibles à 320 px. C'est le mot « cycle » qui saute, et
-     quand de l'antimatière est déjà prête, aussi son numéro — les deux montants
-     comptent plus que lui. */
+     94 px pour 79 disponibles à 320 px. C'est le mot « cycle » qui saute, pas
+     son numéro. Seul cas encore trop long : « +24 · #5 · −56.9T » sur un écran
+     de 320 px (96 px demandés), où la fin est coupée par des points de
+     suspension — l'infobulle donne le texte entier. */
   html($("#sAm"),g>=1?tm("sub_next",fmt(g),S.prestiges+1,mq):tm("sub_cycle",S.prestiges+1,mq));
   $("#sAm").title=t("sub_am_t");
   const full=[];
