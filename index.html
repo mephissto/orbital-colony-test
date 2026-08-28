@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <!--
-  Colonie Orbitale — un jeu incrémental de colonie spatiale.
+  Orbital Colony — a space colony incremental game.
   Copyright (C) 2026 Guilhem
 
-  Ce programme est un logiciel libre : vous pouvez le redistribuer ou le
-  modifier selon les termes de la GNU General Public License telle que publiée
-  par la Free Software Foundation, soit la version 3 de la Licence, soit (à
-  votre choix) toute version ultérieure.
+  This program is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option) any later
+  version.
 
-  Ce programme est distribué dans l'espoir qu'il sera utile, mais SANS AUCUNE
-  GARANTIE, sans même la garantie implicite de QUALITÉ MARCHANDE ou
-  d'ADÉQUATION À UN USAGE PARTICULIER. Voir la GNU General Public License pour
-  plus de détails.
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-  Vous devriez avoir reçu une copie de la GNU General Public License avec ce
-  programme (fichier LICENSE). Sinon, voir <https://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License along with
+  this program (LICENSE file). If not, see <https://www.gnu.org/licenses/>.
 
   SPDX-License-Identifier: GPL-3.0-or-later
+
+  Note — the source comments below are written in French, the language the
+  project is developed in. The game interface itself is fully bilingual
+  (English by default, French auto-detected); see README.en.md.
 -->
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Colonie Orbitale</title>
+<meta name="description" content="Space idle game: mine ore, build a colony, bend space-time. Free, offline, installable, no account.">
+<title>Orbital Colony</title>
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0icCIgY3g9IjM0JSIgY3k9IjI3JSIgcj0iNzglIj4KPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjOWRiMGQyIi8+PHN0b3Agb2Zmc2V0PSI0NSUiIHN0b3AtY29sb3I9IiM0YzVhNzIiLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTUxYjI4Ii8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjEwIiBmaWxsPSIjMDcwYjE2Ii8+CjxnIHRyYW5zZm9ybT0icm90YXRlKC0yMiAzMiAzMykiPgo8ZWxsaXBzZSBjeD0iMzIiIGN5PSIzMyIgcng9IjI5LjUiIHJ5PSI5LjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E5N2JmZiIgc3Ryb2tlLXdpZHRoPSIzLjYiIG9wYWNpdHk9Ii42Ii8+PC9nPgo8Y2lyY2xlIGN4PSIzMiIgY3k9IjMxIiByPSIxNy41IiBmaWxsPSJ1cmwoI3ApIi8+CjxjaXJjbGUgY3g9IjI1LjUiIGN5PSIyNS41IiByPSI0LjIiIGZpbGw9IiMwYjEwMTgiIG9wYWNpdHk9Ii41Ii8+CjxjaXJjbGUgY3g9IjM4LjUiIGN5PSIzNS41IiByPSIzLjEiIGZpbGw9IiMwYjEwMTgiIG9wYWNpdHk9Ii40NSIvPgo8Y2lyY2xlIGN4PSIzNCIgY3k9IjIxIiByPSIyLjEiIGZpbGw9IiMwYjEwMTgiIG9wYWNpdHk9Ii40Ii8+CjxnIHRyYW5zZm9ybT0icm90YXRlKC0yMiAzMiAzMykiPgo8cGF0aCBkPSJNMi41IDMzYTI5LjUgOS41IDAgMCAwIDU5IDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRmZDhmZiIgc3Ryb2tlLXdpZHRoPSIzLjgiLz48L2c+Cjwvc3ZnPg==">
 <meta name="theme-color" content="#05070f">
 <link rel="manifest" href="manifest.webmanifest">
@@ -139,16 +143,45 @@ header{
   .topbar .hbtn span{display:none}
   .topbar .hbtn{padding:8px;justify-content:center;width:34px;height:34px}
   .ic{width:17px;height:17px}
-  .lang{padding:8px 9px}
   .tools{gap:6px}
   .topbar{flex-wrap:nowrap}
   .logo{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
-.langsw{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.lang{background:var(--panel-2);border:none;color:var(--dim);padding:6px 10px;cursor:pointer;
-  font-size:11px;font-weight:700;letter-spacing:.06em;transition:.15s}
-.lang:hover{color:#fff}
-.lang.on{background:var(--cyan);color:#04121c}
+/* Sélecteur de langue — menu déroulant. Fermé : le code de la langue (EN / FR).
+   Ouvert : le code ET le nom, écrit dans cette langue.
+   Une version à drapeaux a existé en 3.0.0-dev.7 : SVG dessinés à la main, pour
+   éviter les emojis drapeaux (absents sur Windows, où 🇫🇷 s'affiche « FR », et
+   au dessin variable ailleurs). Abandonnée quand même — deux drapeaux en
+   couleurs pleines dans une barre par ailleurs monochrome tiraient l'œil bien
+   plus que ne le mérite un sélecteur de langue. */
+.langsel{position:relative;flex:0 0 auto}
+.langcode{font-size:11px;font-weight:700;letter-spacing:.06em;flex:none}
+.langbtn{background:var(--panel-2);border:1px solid var(--line);color:var(--dim);
+  padding:6px 9px;border-radius:8px;cursor:pointer;transition:.15s;
+  display:inline-flex;align-items:center;gap:5px;line-height:1;height:30px}
+.langbtn:hover,.langsel.open .langbtn{color:#fff;border-color:var(--cyan)}
+.chev{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.langsel.open .chev{transform:rotate(180deg)}
+.langmenu{position:absolute;top:calc(100% + 6px);right:0;z-index:60;
+  background:#0d1426;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  box-shadow:0 14px 34px rgba(0,0,0,.55);min-width:150px;
+  display:none}
+.langsel.open .langmenu{display:block}
+.langopt{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;
+  color:var(--txt);padding:10px 13px;cursor:pointer;font-size:13px;text-align:left;
+  transition:.12s;white-space:nowrap}
+.langopt:hover{background:rgba(79,216,255,.12)}
+.langopt.on{background:rgba(79,216,255,.18);color:var(--cyan);font-weight:600}
+.langopt .langcode{color:var(--dim);width:20px}
+.langopt.on .langcode{color:var(--cyan)}
+.langopt .tick{margin-left:auto;width:13px;height:13px;flex:none;fill:none;
+  stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  visibility:hidden}
+.langopt.on .tick{visibility:visible}
+@media (max-width:720px){
+  .langbtn{height:34px;padding:8px}
+}
 
 /* ---------- LAYOUT ---------- */
 main{flex:1;display:grid;min-height:0;position:relative;
@@ -318,6 +351,21 @@ nav.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 
 /* ---------- CARDS ---------- */
 .buyrow{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
 .buyrow .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+/* La rangée « acheter par lot » reste collée en haut pendant qu'on fait défiler
+   les structures : c'est elle qui décide du prix et de la quantité affichés sur
+   TOUTES les cartes, et remonter la chercher à chaque changement d'avis était
+   pénible dès la troisième structure.
+   Les marges négatives compensent le padding du conteneur défilant, pour que le
+   fond couvre toute la largeur et que les cartes passent DESSOUS au lieu de
+   déborder sur les côtés. --buyTop vaut 0 sur ordinateur (c'est #panels qui
+   défile, la barre se colle à son bord haut) et, sur mobile où c'est <main> qui
+   défile, la hauteur occupée par l'en-tête collant des onglets — mesurée en JS
+   dans syncHero(), comme #stickyhead lui-même. */
+#buyRow{position:sticky;top:var(--buyTop,0px);z-index:12;
+  margin:-16px -16px 12px;padding:16px 16px 10px;
+  background:rgba(8,12,24,.94);backdrop-filter:blur(8px)}
+#buyRow::after{content:"";position:absolute;left:0;right:0;top:100%;height:10px;
+  background:linear-gradient(rgba(8,12,24,.85),rgba(8,12,24,0));pointer-events:none}
 .qty{padding:5px 13px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);
   color:var(--dim);cursor:pointer;font-size:12px}
 .qty.on{color:#04121c;background:var(--cyan);border-color:var(--cyan);font-weight:700}
@@ -670,6 +718,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
   #stickyhead nav{border-bottom:none}
   nav{padding:6px 10px 0;gap:2px}
   #panels{padding:12px 10px}
+  #buyRow{margin:-12px -10px 12px;padding:12px 10px 9px}
   .card{grid-template-columns:32px minmax(0,1fr) auto;gap:9px;padding:10px 11px}
   .acard{grid-template-columns:32px minmax(0,1fr) auto;gap:8px}
   .acard .right{min-width:86px}
@@ -724,11 +773,11 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 <div id="app">
 <header>
   <div class="topbar">
-    <div class="logo" data-i18n="logo">◈ Colonie Orbitale</div>
+    <div class="logo" data-i18n="logo">◈ Orbital Colony</div>
     <span class="ver" id="verTag"></span>
     <div class="spacer"></div>
     <div class="tools">
-      <div class="langsw"><button class="lang" data-lang="fr">FR</button><button class="lang" data-lang="en">EN</button></div>
+      <div class="langsel" id="langSel"><button class="langbtn" id="langBtn" aria-haspopup="listbox" aria-expanded="false" data-i18n-title="lang_title"><span class="langcode" id="langFlag"></span><svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="langmenu" id="langMenu" role="listbox"></div></div>
       <button class="hbtn" id="bSave" data-i18n-title="save">
         <svg class="ic" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
         <span data-i18n="save">Sauvegarder</span></button>
@@ -884,7 +933,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 <script>
 "use strict";
 /* ============================================================
-   COLONIE ORBITALE — idle game (fichier unique, hors-ligne)
+   ORBITAL COLONY / COLONIE ORBITALE — idle game (fichier unique, hors-ligne)
    ============================================================ */
 
 /* Version du jeu — affichée dans la barre du haut (ordinateur) et en dernière
@@ -895,7 +944,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.5";
+const VERSION="3.0.0-dev.8";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -926,6 +975,7 @@ const T={
 fr:{
   logo:"◈ Colonie Orbitale", doc_title:"Colonie Orbitale — idle game spatial",
   save:"Sauvegarder", export:"Export / Import", reset:"Reset",
+  lang_title:"Langue",
   tab_gen:"Extraction", tab_up:"Améliorations", tab_pr:"Recherche", tab_au:"Automatisation", tab_ch:"Défis", tab_ac:"Succès", tab_st:"Statistiques",
   nav_prev:"Onglets précédents", nav_next:"Onglets suivants",
   manual:"Foreuse manuelle", per_click:"par clic",
@@ -1050,6 +1100,7 @@ fr:{
 en:{
   logo:"◈ Orbital Colony", doc_title:"Orbital Colony — space idle game",
   save:"Save", export:"Export / Import", reset:"Reset",
+  lang_title:"Language",
   tab_gen:"Mining", tab_up:"Upgrades", tab_pr:"Research", tab_au:"Automation", tab_ch:"Challenges", tab_ac:"Achievements", tab_st:"Statistics",
   nav_prev:"Previous tabs", nav_next:"Next tabs",
   manual:"Manual drill", per_click:"per click",
@@ -2316,7 +2367,17 @@ function syncHero(){
   syncHeaderH();
   const mobile=matchMedia("(max-width:880px)").matches;
   const sp=$("#herospacer");
-  if(!mobile){sp.style.height="";$("#panels").style.minHeight="";return}
+  if(!mobile){
+    sp.style.height=""; $("#panels").style.minHeight="";
+    /* Ordinateur : #panels défile. Sa marge intérieure haute décale le point
+       d'accrochage d'autant — on la retranche pour que le fond de la barre
+       affleure vraiment le haut de la zone visible, sans laisser passer une
+       bande de cartes au-dessus. Elle est lue plutôt qu'écrite en dur : elle
+       vaut 16px en général, 12px sur écran étroit. */
+    const pt=parseFloat(getComputedStyle($("#panels")).paddingTop)||0;
+    document.documentElement.style.setProperty("--buyTop",(-pt)+"px");
+    return;
+  }
   // hauteur minimale du panneau : un onglet presque vide ne doit pas faire
   // sauter la position de défilement quand on l'ouvre
   const minH=Math.max(0,$("main").clientHeight-$("#stickyhead").getBoundingClientRect().height)+"px";
@@ -2324,7 +2385,12 @@ function syncHero(){
   // la cale suit la hauteur réelle (elle ne varie qu'avec la rangée de badges)
   const h=$("#hero").getBoundingClientRect();
   sp.style.height=Math.round(h.height)+"px";
-  $("#stickyhead").style.top=Math.round(Math.max(0,h.bottom-$("main").getBoundingClientRect().top))+"px";
+  const hautCollant=Math.round(Math.max(0,h.bottom-$("main").getBoundingClientRect().top));
+  $("#stickyhead").style.top=hautCollant+"px";
+  // mobile : <main> défile ; la barre des lots se pose sous les onglets collants
+  const bt=(hautCollant+Math.round($("#stickyhead").getBoundingClientRect().height))+"px";
+  if(document.documentElement.style.getPropertyValue("--buyTop")!==bt)
+    document.documentElement.style.setProperty("--buyTop",bt);
 }
 addEventListener("resize",syncHero);
 // la hauteur de l'en-tête peut changer SANS défilement (bonus qui expire,
@@ -2457,7 +2523,7 @@ function buildSkeleton(){
   /* --- Extraction --- */
   $("#pGen").innerHTML=
     '<p class="hint">'+t("gen_hint")+'</p>'+
-    '<div class="buyrow"><span class="lbl">'+t("buy_by")+'</span></div><div id="genList"></div>';
+    '<div class="buyrow" id="buyRow"><span class="lbl">'+t("buy_by")+'</span></div><div id="genList"></div>';
 
   const row=$("#pGen .buyrow");
   QBTN=[1,10,100,"max"].map(q=>{
@@ -2615,6 +2681,36 @@ function buildSkeleton(){
 }
 
 /* ---------- changement de langue ---------- */
+/* Le nom d'une langue s'écrit toujours DANS cette langue — « Français » reste
+   « Français » quand l'interface est en anglais : c'est la seule façon pour un
+   joueur qui ne comprend pas la langue courante de retrouver la sienne. Le code
+   à deux lettres l'accompagne, et c'est lui seul qu'affiche le bouton fermé. */
+const LANGUES=[{id:"en",code:"EN",nm:"English"},{id:"fr",code:"FR",nm:"Français"}];
+const langDef=id=>LANGUES.find(l=>l.id===id)||LANGUES[0];
+function buildLangMenu(){
+  const m=$("#langMenu"); m.innerHTML="";
+  LANGUES.forEach(l=>{
+    const b=document.createElement("button");
+    b.className="langopt"; b.type="button"; b.setAttribute("role","option");
+    b.dataset.lang=l.id;
+    b.innerHTML='<span class="langcode">'+l.code+'</span><span>'+l.nm+'</span>'+
+      '<svg class="tick" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg>';
+    bindAction(b,()=>{ouvrirLang(false);setLang(l.id)});
+    m.appendChild(b);
+  });
+}
+function ouvrirLang(on){
+  const sel=$("#langSel");
+  cls(sel,"open",on);
+  $("#langBtn").setAttribute("aria-expanded",on?"true":"false");
+}
+function majLang(){
+  txt($("#langFlag"),langDef(LANG).code);
+  $$(".langopt").forEach(b=>{
+    const on=b.dataset.lang===LANG;
+    cls(b,"on",on); b.setAttribute("aria-selected",on?"true":"false");
+  });
+}
 function applyI18n(){
   document.title=t("doc_title");
   txt($("#verTag"),"v"+VERSION);
@@ -2628,7 +2724,7 @@ function applyI18n(){
     if(e.dataset.i18nHtml!==undefined)html(e,t(k)); else txt(e,t(k));
   });
   $$("[data-i18n-title]").forEach(e=>{const v=t(e.dataset.i18nTitle);if(e.title!==v)e.title=v});
-  $$(".lang").forEach(b=>cls(b,"on",b.dataset.lang===LANG));
+  majLang();
 }
 function setLang(l){
   if(!T[l]||l===LANG)return;
@@ -3100,7 +3196,14 @@ bindAction($("#navArrR"),()=>scrollerNav(1));
     if(i>=0&&i<ord.length)activerOnglet(ord[i]);
   },{passive:true});
 })();
-$$(".lang").forEach(b=>bindAction(b,()=>setLang(b.dataset.lang)));
+buildLangMenu();
+bindAction($("#langBtn"),()=>ouvrirLang(!$("#langSel").classList.contains("open")));
+/* Fermer au clic ailleurs : en capture, pour que le menu se referme même quand
+   le clic atterrit sur un élément qui arrête la propagation. */
+addEventListener("pointerdown",e=>{
+  if(!$("#langSel").contains(e.target))ouvrirLang(false);
+},true);
+addEventListener("keydown",e=>{if(e.key==="Escape")ouvrirLang(false)});
 
 /* libellés d'onglets courts/longs selon la largeur */
 let rzT=null;

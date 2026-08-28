@@ -2,9 +2,10 @@
 
 🇫🇷 Français · [🇬🇧 English](README.en.md)
 
-Idle game spatial, bilingue FR / EN, installable en application (PWA) et jouable
-hors connexion. Tout le jeu tient dans `index.html` : aucune dépendance, aucun
-serveur, aucune donnée qui sort de ton navigateur.
+Idle game spatial, bilingue EN / FR (anglais par défaut, français détecté
+automatiquement), installable en application (PWA) et jouable hors connexion.
+Tout le jeu tient dans `index.html` : aucune dépendance, aucun serveur, aucune
+donnée qui sort de ton navigateur.
 
 Logiciel libre sous [GPL 3.0 ou ultérieure](#licence).
 
@@ -228,6 +229,16 @@ Dix structures, chacune produisant du minerai en continu.
 **Prix du n-ième exemplaire :** `prix de base × 1,15^(déjà possédés)`, réduit
 par la recherche Négociation. Le bouton **MAX** calcule combien tu peux en
 acheter d'un coup, sommes géométriques comprises.
+
+La rangée **×1 / ×10 / ×100 / MAX** est **collante** : elle reste en haut de
+l'onglet pendant qu'on fait défiler la liste (3.0.0). C'est elle qui décide du
+prix et de la quantité affichés sur *toutes* les cartes, et avec dix structures
+il fallait remonter la chercher à chaque changement d'avis. Son point
+d'accrochage est calculé en JS parce qu'il n'est pas le même selon la mise en
+page : sur ordinateur c'est `#panels` qui défile et la barre se colle à son bord
+haut moins sa marge intérieure, sur mobile c'est `<main>` et elle se pose sous
+l'en-tête collant des onglets (variable CSS `--buyTop`, mise à jour par
+`syncHero()`).
 
 **Production totale :**
 
@@ -860,8 +871,22 @@ catégorie, son intitulé bilingue et la fonction qui calcule sa valeur. On y
 trouve notamment le **détail des anomalies par type**, invisible ailleurs dans
 le jeu.
 
-**Langue** — sélecteur FR / EN en haut à droite ; la langue par défaut suit celle
-du navigateur et ton choix est mémorisé. Changer de langue ne touche pas à la
+**Langue** — menu déroulant en haut à droite : fermé il n'affiche que le code
+(**EN** / **FR**), ouvert il liste le code et le nom, chaque nom écrit dans sa
+propre langue (« English », « Français ») — c'est la seule façon pour quelqu'un
+qui ne comprend pas la langue affichée de retrouver la sienne. Ton choix est
+mémorisé.
+
+Une version à **drapeaux** a existé en 3.0.0-dev.7, en SVG dessinés dans le
+fichier plutôt qu'en emojis (Windows ne rend pas les emojis drapeaux : 🇫🇷 s'y
+affiche « FR », et ailleurs leur dessin dépend de la police du système). Elle a
+été abandonnée pour une raison de composition, pas de technique : deux aplats de
+couleur vive dans une barre d'outils par ailleurs monochrome attiraient le regard
+bien plus que ne le mérite un sélecteur de langue.
+**L'anglais est la langue par défaut** : titre de la page, nom de l'application
+installée, `lang` du document et description. Le jeu bascule automatiquement en
+français si la langue du navigateur commence par `fr` (`fr`, `fr-FR`, `fr-CA`…),
+et reste en anglais pour toutes les autres. Changer de langue ne touche pas à la
 partie en cours.
 
 ---

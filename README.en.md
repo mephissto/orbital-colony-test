@@ -2,9 +2,9 @@
 
 [🇫🇷 Français](README.md) · 🇬🇧 English
 
-A space idle game, bilingual FR / EN, installable as an app (PWA) and playable
-offline. The whole game fits in `index.html`: no dependency, no server, no data
-ever leaving your browser.
+A space idle game, bilingual EN / FR (English by default, French auto-detected),
+installable as an app (PWA) and playable offline. The whole game fits in
+`index.html`: no dependency, no server, no data ever leaving your browser.
 
 Free software under [GPL 3.0 or later](#licence).
 
@@ -220,6 +220,14 @@ Ten structures, each producing ore continuously.
 **Price of the n-th unit:** `base price × 1.15^(already owned)`, reduced by the
 Negotiation research. The **MAX** button works out how many you can buy at once,
 geometric sums included.
+
+The **×1 / ×10 / ×100 / MAX** row is **sticky**: it stays at the top of the tab
+while you scroll the list (3.0.0). It decides the price and quantity shown on
+*every* card, and with ten structures you had to scroll back up every time you
+changed your mind. Its anchor point is computed in JS because it differs per
+layout: on desktop `#panels` is the scroller and the row sticks to its top edge
+minus its padding, on mobile it is `<main>` and the row lands under the sticky
+tab header (the `--buyTop` CSS variable, updated by `syncHero()`).
 
 **Total output:**
 
@@ -823,9 +831,21 @@ category, its bilingual label and the function computing its value. It notably
 includes the **breakdown of anomalies by type**, invisible anywhere else in the
 game.
 
-**Language** — FR / EN selector at the top right; the default language follows
-the browser's and your choice is remembered. Changing language does not touch the
-run in progress.
+**Language** — dropdown at the top right: closed it shows only the code
+(**EN** / **FR**), open it lists the code and the name, each name written in its
+own language ("English", "Français") — the only way for someone who does not
+understand the displayed language to find their own. Your choice is remembered.
+
+A **flag** version existed in 3.0.0-dev.7, as SVGs drawn inside the file rather
+than emojis (Windows does not render flag emojis: 🇫🇷 shows as "FR" there, and
+elsewhere their look depends on the system font). It was dropped for a
+composition reason, not a technical one: two blocks of vivid colour in an
+otherwise monochrome toolbar drew far more attention than a language selector
+deserves.
+**English is the default**: page title, installed app name, document `lang` and
+description. The game switches to French automatically when the browser language
+starts with `fr` (`fr`, `fr-FR`, `fr-CA`…), and stays in English for every other
+one. Changing language does not touch the run in progress.
 
 ---
 
