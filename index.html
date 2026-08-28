@@ -1140,7 +1140,7 @@ a.abrow:hover .aext{color:var(--cyan)}
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.27";
+const VERSION="3.0.0-dev.28";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1543,7 +1543,7 @@ const GENS=[
 const GROWTH=1.15;
 /* Inflation : le seul chiffre qui change, lu par genCost() et maxAffordable().
    Défini plus bas que CHALS, donc chalRegle() existe au moment de l'appel. */
-const GROWTH_CHAL=1.25;
+const GROWTH_CHAL=1.35;
 
 /* ---------- données : améliorations ---------- */
 const UPS=[];
@@ -2062,61 +2062,58 @@ const ACHS=[
    est une fraction du record du joueur, quantité qu'aucune simulation ne
    reproduit fidèlement. */
 const CHALS=[
- {id:"silence", ico:"📵", regle:"noanom", bonus:"anomfast", coef:0.4,
+ {id:"silence", ico:"📵", regle:"noanom", bonus:"anomfast", coef:0.005,
   nm:{fr:"Silence radio",en:"Radio silence"},
   ds:{fr:"Aucune anomalie n'apparaît de tout le cycle.",
       en:"No anomaly appears for the whole cycle."},
   rw:{fr:"Anomalies 20 % plus fréquentes, définitivement.",
       en:"Anomalies 20 % more frequent, for good."}},
- {id:"mains",   ico:"⛓️", regle:"noclick", bonus:"prod25", coef:0.1,
+ {id:"mains",   ico:"⛓️", regle:"noclick", bonus:"prod25", coef:0.002,
   nm:{fr:"Mains liées",en:"Hands tied"},
   ds:{fr:"Le clic ne rapporte rien : tout doit venir des structures.",
       en:"Clicking yields nothing: everything must come from structures."},
   rw:{fr:"Production +25 %, définitivement.",
       en:"Output +25 %, for good."}},
- {id:"inflation",ico:"📈", regle:"expensive", bonus:"cheap8", coef:0.06,
+ {id:"inflation",ico:"📈", regle:"expensive", bonus:"cheap8", coef:0.006,
   nm:{fr:"Inflation",en:"Inflation"},
-  ds:{fr:"Chaque structure achetée renchérit de 25 % au lieu de 15 %.",
-      en:"Each structure bought gets 25 % pricier instead of 15 %."},
+  ds:{fr:"Chaque structure achetée renchérit de 35 % au lieu de 15 %.",
+      en:"Each structure bought gets 35 % pricier instead of 15 %."},
   rw:{fr:"−8 % sur tous les prix de structures, définitivement.",
       en:"−8 % on every structure price, for good."}},
- {id:"naine",   ico:"🏚️", regle:"dwarf", bonus:"big2", coef:0.5, hcap:()=>{
-    /* Ce que coûte « seulement 4 structures » dépend de la colonie : pour un
-       débutant qui n'en a que quatre, presque rien ; pour une colonie complète,
-       les six dernières font l'essentiel de la production. On lit le rapport
-       sur la colonie encore en place, juste avant la remise à zéro. */
-    const part=l=>l.reduce((a,g)=>a+(S.gens[g.id]||0)*g.rate*genMult(g.id),0);
-    const tot=part(GENS); if(!(tot>0))return 1;
-    return Math.max(part(GENS.slice(0,NAIN))/tot, 1e-12);
-  },
+ /* Pas de handicap ici : il mesurait la part de production des structures
+    conservées, ce qui suppose qu'on garde sa colonie. On la reconstruit, et le
+    ralentissement réel dépassait 100× là où le handicap annonçait 12×. La
+    compensation est désormais dans la règle (NAIN_MULT), pas dans l'objectif. */
+ {id:"naine",   ico:"🏚️", regle:"dwarf", bonus:"big2", coef:0.0015,
   nm:{fr:"Colonie naine",en:"Dwarf colony"},
-  ds:{fr:"Seules les 4 premières structures existent.",
-      en:"Only the first 4 structures exist."},
+  ds:{fr:"Seules les 6 premières structures existent, mais elles produisent ×4.",
+      en:"Only the first 6 structures exist, but they produce ×4."},
   rw:{fr:"Les 4 dernières structures produisent ×2, définitivement.",
       en:"The last 4 structures produce ×2, for good."}},
- {id:"fuite",   ico:"💨", regle:"leak", bonus:"am15", coef:0.2,
+ {id:"fuite",   ico:"💨", regle:"leak", bonus:"am15", coef:0.015,
   nm:{fr:"Fuite de confinement",en:"Containment leak"},
-  ds:{fr:"La production perd 2 % par tranche de 30 s écoulée depuis l'entrée.",
-      en:"Output loses 2 % for every 30 s elapsed since you entered."},
+  ds:{fr:"La production perd 2 % par tranche de 2 min, jusqu'à 20 % au plus bas.",
+      en:"Output loses 2 % every 2 min, down to 20 % at the lowest."},
   rw:{fr:"Gain d'antimatière +15 %, définitivement.",
       en:"Antimatter gain +15 %, for good."}},
- {id:"vide",    ico:"🕳️", regle:"void", bonus:"amexp", coef:0.02, hcap:()=>{
-    /* Le Vide retire l'antimatière et les succès du multiplicateur : le
-       handicap, c'est exactement ce qu'il retire. Un joueur à 2 antimatière
-       perd ×1,2 ; un joueur à 500 000 en perd ×40 000 000. Aucun coefficient
-       fixe ne peut couvrir un tel écart — mesuré, l'objectif se gagnait en
-       0 minute chez l'un et en 1,1 h chez l'autre. */
-    return 1/Math.max(1e-12, amMult()*achMult());
+ {id:"vide",    ico:"🕳️", regle:"void", bonus:"amexp", coef:0.005, hcap:()=>{
+    /* Le Vide retire l'antimatière du multiplicateur : le handicap, c'est
+       exactement ce qu'il retire. Un joueur à 2 antimatière perd ×1,2 ; un
+       joueur à 500 000 en perd ×40 000 000. Aucun coefficient fixe ne peut
+       couvrir un tel écart — mesuré, l'objectif se gagnait en 0 minute chez
+       l'un et en 1,1 h chez l'autre. */
+    return 1/Math.max(1e-12, amMult());
   },
   nm:{fr:"Le Vide",en:"The Void"},
-  ds:{fr:"Ni les succès ni l'antimatière ne comptent dans le multiplicateur.",
-      en:"Neither achievements nor antimatter count in the multiplier."},
+  ds:{fr:"L'antimatière ne compte plus dans le multiplicateur.",
+      en:"Antimatter no longer counts in the multiplier."},
   rw:{fr:"Exposant de l'antimatière 1,50 → 1,55, définitivement.",
       en:"Antimatter exponent 1.50 → 1.55, for good."}},
 ];
 /* Colonie naine : la liste des structures qui existent réellement. Point unique,
    lu par l'affichage, la liste du Contremaître et la visibilité des paliers. */
-const NAIN=4;
+const NAIN=6;
+const NAIN_MULT=4;                                // compensation, voir genMult
 const gensActives=()=>chalRegle("dwarf")?GENS.slice(0,NAIN):GENS;
 const DERN4=GENS.slice(-4).map(g=>g.id);          // récompense de Colonie naine
 /* Référence de difficulté : le meilleur cycle du joueur. Un objectif en valeur
@@ -2126,6 +2123,15 @@ const DERN4=GENS.slice(-4).map(g=>g.id);          // récompense de Colonie nain
    franchissable pour l'autre.
    Le plancher évite un objectif nul sur une partie neuve. */
 const CHAL_MIN=1e7;
+/* Coefficients recalés en 3.0.0 sur une partie réelle simulée seconde par
+   seconde (anomalies, buffs, automates compris) : chacun vise ~3 h pour un
+   joueur attentif, soit 2 à 4 fois un cycle ordinaire visant le même objectif.
+   Les anciennes valeurs (0,4 à 0,02) donnaient 5 à 13 h à ce joueur-là, et
+   trois défis restaient hors d'atteinte sans rester devant l'écran.
+   Le rapport « fraction du meilleur cycle → temps » ne dépend pas de l'échelle
+   du joueur : le minerai croît exponentiellement, donc atteindre 0,5 % du
+   record prend la même PART du cycle pour un débutant et pour une colonie
+   avancée. C'est ce qui rend un coefficient unique légitime. */
 /* VARIANTE À L'ESSAI — mettre à true coupe AUSSI l'effet des recherches pendant
    un défi (et pas seulement leur achat). Mesuré : ça retire un facteur 10 à 136
    sur le multiplicateur, donc les coefficients devraient être divisés d'environ
@@ -2206,17 +2212,26 @@ function achMult(){return 1+Object.keys(S.achs).length*0.01}
    Surtension ×10 active au moment du tirage gonflait leur gain jusqu'à ×10,
    pour une anomalie censée ne "jamais donner un pouvoir que tu n'as pas déjà,
    seulement du temps d'avance" (voir README, section anomalies). */
-/* Fuite de confinement : −2 % par tranche de 30 s depuis l'entrée dans le défi.
-   Calculé à la volée sur chalStart plutôt que stocké, pour rester juste après
-   un rechargement de page ou un retour d'arrière-plan. */
+/* Fuite de confinement : −2 % par tranche de 2 min depuis l'entrée, avec un
+   PLANCHER à 20 %. Calculé à la volée sur chalStart plutôt que stocké, pour
+   rester juste après un rechargement de page ou un retour d'arrière-plan.
+   Sans plancher, la décroissance composée bornait le minerai total du défi à
+   « production × 1485 s » : simulé sur une vraie partie, le défi plafonnait à
+   5,58 T de minerai en 36 h, soit 0,000002 % du record du joueur. Ce n'était
+   pas un défi difficile, c'était un défi impossible, quel que soit l'objectif.
+   Avec le plancher, il redevient fini — mesuré 2,0× un cycle normal. */
+const FUITE_PAS=120000, FUITE_MIN=0.20;
 function fuiteMult(){
   if(!chalRegle("leak")||!S.chalStart)return 1;
-  return Math.pow(0.98,Math.floor((Date.now()-S.chalStart)/30000));
+  return Math.max(FUITE_MIN,Math.pow(0.98,Math.floor((Date.now()-S.chalStart)/FUITE_PAS)));
 }
 function globalMult(noBuff){
   let m=1;
-  // Le Vide : la progression accumulée ne compte plus, seul le cycle en cours
-  if(!chalRegle("void")){ m*=amMult(); m*=achMult(); }
+  /* Le Vide retire l'antimatière du multiplicateur — mais PAS les succès :
+     mesuré à 4,9× un cycle normal en retirant les deux, c'était le plus dur des
+     six et de loin. Les succès restent la récompense d'un travail déjà fait. */
+  if(!chalRegle("void")) m*=amMult();
+  m*=achMult();
   m*=fuiteMult();
   m*=Math.pow(1.3,lvl("mining"));
   UPS.forEach(u=>{if(u.kind==="glob"&&S.ups[u.id])m*=u.mult});
@@ -2228,6 +2243,11 @@ function genMult(id){
   let m=1;
   UPS.forEach(u=>{if(u.kind==="gen"&&u.target===id&&S.ups[u.id])m*=u.mult});
   if(chalBonus("big2")&&DERN4.indexOf(id)>=0)m*=2;   // récompense de Colonie naine
+  /* Colonie naine : sans compensation, six structures ne peuvent pas approcher
+     un record établi avec dix — leur coût monte en 1,15^n quand leur production
+     monte linéairement. Simulé : plafond à 124 T en 36 h, 0,00004 % du record.
+     Le ×4 rend la colonie amputée capable de croître. */
+  if(chalRegle("dwarf"))m*=NAIN_MULT;
   return m;
 }
 function perSec(noBuff){

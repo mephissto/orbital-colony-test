@@ -61,14 +61,50 @@ planifier.
 
 ### Les six défis
 
-| Défi | Règle cassée | Récompense permanente |
-|---|---|---|
-| 📵 Silence radio | aucune anomalie n'apparaît | anomalies +20 % plus fréquentes |
-| 🤐 Mains liées | le clic ne rapporte rien | production +25 % |
-| 📈 Inflation | prix en ×1,25 au lieu de ×1,15 | −8 % sur tous les prix |
-| 🏚️ Colonie naine | seules les 4 premières structures existent | les 4 dernières produisent ×2 |
-| 💨 Fuite de confinement | production −2 % par tranche de 30 s écoulée | gain d'antimatière +15 % |
-| 🕳️ Le Vide | ni succès ni antimatière dans le multiplicateur | exposant antimatière 1,50 → 1,55 |
+| Défi | Règle cassée | Récompense permanente | coef |
+|---|---|---|---|
+| 📵 Silence radio | aucune anomalie n'apparaît | anomalies +20 % plus fréquentes | 0,005 |
+| ⛓️ Mains liées | le clic ne rapporte rien | production +25 % | 0,002 |
+| 📈 Inflation | prix en ×1,35 au lieu de ×1,15 | −8 % sur tous les prix | 0,006 |
+| 🏚️ Colonie naine | seules les 6 premières structures existent, mais ×4 | les 4 dernières produisent ×2 | 0,0015 |
+| 💨 Fuite de confinement | production −2 % par tranche de 2 min, plancher 20 % | gain d'antimatière +15 % | 0,015 |
+| 🕳️ Le Vide | l'antimatière ne compte plus dans le multiplicateur | exposant antimatière 1,50 → 1,55 | 0,005 |
+
+### Équilibrage mesuré (3.0.0)
+
+Simulation seconde par seconde sur une vraie sauvegarde (cycle n°6, 34
+antimatière, meilleur cycle 285 Qa), anomalies, buffs et automates compris,
+chaque défi comparé à un cycle ordinaire visant le même objectif :
+
+| Défi | Attentif | × cycle normal | Absent |
+|---|---|---|---|
+| 📵 Silence radio | 3,0 h | 3,2× | 9,1 h |
+| ⛓️ Mains liées | 2,4 h | 3,9× | 2,4 h (1,2×) |
+| 📈 Inflation | 2,5 h | 2,5× | 7,2 h |
+| 🏚️ Colonie naine | 2,7 h | 5,0× | 7,8 h |
+| 💨 Fuite de confinement | 3,8 h | 2,7× | 19,1 h |
+| 🕳️ Le Vide | 2,8 h | 5,2× | 7,3 h |
+
+**Deux défis étaient impossibles avant cette mesure**, pas difficiles :
+
+- **Fuite** — sans plancher, la décroissance composée bornait le minerai total à
+  `production × 1485 s`. Plafond mesuré : 5,58 T en 36 h, soit 0,000002 % du
+  record du joueur. Aucun objectif n'était atteignable.
+- **Colonie naine** — avec 4 structures, le coût monte en 1,15ⁿ quand la
+  production monte linéairement : plafond à 124 T, 0,00004 % du record. Et son
+  handicap annonçait 12× de ralentissement là où le réel dépassait 100×, parce
+  qu'il mesurait une part de production en supposant qu'on garde sa colonie —
+  alors qu'on la reconstruit.
+
+**Ce que le coefficient règle vraiment.** Pour les règles à facteur constant
+(silence, mains, inflation, vide) le rapport de difficulté ne dépend pas du
+coefficient : celui-ci ne règle que la durée. Pour les règles qui composent dans
+le temps (fuite, naine), le rapport explose avec l'objectif — elles ne se règlent
+donc pas au coefficient mais en bornant la règle elle-même.
+
+Un coefficient unique reste légitime parce que le minerai croît
+exponentiellement : atteindre 0,5 % du record prend la même *part* du cycle pour
+un débutant et pour une colonie avancée.
 
 ### Notes d'implémentation
 
@@ -77,9 +113,10 @@ planifier.
   nouvelle à équilibrer.
 - État : `S.chal` (id du défi actif ou `null`) et `S.chalDone` ({id:1}).
   Champs additifs → sauvegardes antérieures compatibles sans conversion.
-- Objectifs en **valeurs fixes**, pas relatives au meilleur cycle. Un joueur
-  avancé les expédie : c'est la récompense d'avoir progressé, et comme chaque
-  défi ne se valide qu'une fois il n'y a rien à exploiter.
+- Objectifs **relatifs au meilleur cycle** (`coef × bestRun × handicap`), figés
+  à l'entrée. L'idée initiale de valeurs fixes a été abandonnée en cours de
+  route : mesuré, deux joueurs à 10 et 24 cycles mettaient 78 min et 1 min pour
+  le même minerai.
 - Prévoir des succès de la catégorie Défis, et une tuile de statistiques
   « Défis réussis ».
 
