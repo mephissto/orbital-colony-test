@@ -1,6 +1,5 @@
 # Colonie Orbitale
 
-
 🇫🇷 Français · [🇬🇧 English](README.en.md)
 
 Idle game spatial, bilingue FR / EN, installable en application (PWA) et jouable
