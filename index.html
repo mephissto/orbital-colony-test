@@ -507,19 +507,34 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
   align-items:center;justify-content:center;padding:20px}
 #modal.on{display:flex}
 .mbox{max-width:520px;width:100%;background:#0b1120;border:1px solid var(--line);border-radius:14px;padding:22px}
-.mbox h2{margin:0 0 10px;font-size:18px;color:var(--cyan)}
+.mbox h2{margin:0 0 10px;font-size:20px;font-weight:700;color:var(--cyan);text-wrap:balance}
+/* Action principale : une seule par fenêtre, accentuée, toujours la dernière
+   donc à droite — la place où le pouce revient. */
+.hbtn.prim{border-color:var(--cyan);color:#04121c;background:var(--cyan);font-weight:600}
+.hbtn.prim:hover{background:#7ce4ff;border-color:#7ce4ff}
 .mbox textarea{width:100%;height:120px;background:#060a15;border:1px solid var(--line);border-radius:8px;
   color:var(--txt);padding:9px;font-family:monospace;font-size:11px;resize:vertical}
-.mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+/* Boutons de fenêtre : à droite et à leur largeur sur ordinateur, étalés sur
+   toute la largeur sur téléphone — une cible large vaut mieux qu'un bouton
+   compact quand on vise au pouce. */
+.mrow{display:flex;gap:9px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.mbox .mrow .hbtn{padding:10px 18px;font-size:13px;width:auto;height:auto}
+@media (max-width:640px){
+  .mbox .mrow{flex-wrap:nowrap}
+  .mbox .mrow .hbtn{flex:1 1 0;justify-content:center;padding:12px 10px}
+}
 /* Boîte de confirmation : z-index au-dessus du modal de sauvegarde et de
    l'invitation à installer, c'est toujours elle qui doit répondre en dernier. */
 #ask{position:fixed;inset:0;z-index:95;background:rgba(2,4,10,.86);display:none;
   align-items:center;justify-content:center;padding:20px}
 #ask.on{display:flex}
 .askbox{max-width:420px}
-#askTxt{margin:0;font-size:13.5px;line-height:1.6;color:var(--txt);white-space:pre-line}
+#askTxt{margin:0;white-space:pre-line}
+/* Une puce par élément : avec un seul bloc et des retours à la ligne, le retrait
+   négatif ne s'applique qu'à la toute première ligne, pas à chaque puce. */
+#askTxt .puce{white-space:normal;padding-left:1.05em;text-indent:-1.05em;margin-top:4px}
+#askTxt .puce:first-child{margin-top:0}
 .askbox .mrow{justify-content:flex-end}
-.hbtn.askgo{border-color:var(--cyan);color:#04121c;background:var(--cyan);font-weight:600}
 
 /* --- les défis --- */
 /* Bandeau du défi en cours : masqué par défaut, affiché par majChalBar(). */
@@ -577,9 +592,6 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
    noir. Posé sur la case seule et pas sur :root, pour ne rien changer ailleurs. */
 .pwanev input{flex:0 0 auto;width:17px;height:17px;margin:0;cursor:pointer;
   color-scheme:dark;accent-color:var(--cyan)}
-.pwabox .mrow{gap:9px}
-.pwabox .hbtn{flex:1 1 0;justify-content:center;padding:11px 12px;font-size:13px}
-.hbtn.pwago{border-color:var(--cyan);color:#04121c;background:var(--cyan);font-weight:600}
 /* Pastille de rappel, si l'invitation a été refusée. Placée au-dessus de la
    zone des toasts, qui occupe toute la largeur en bas sur mobile : superposées,
    les deux se masquaient mutuellement. */
@@ -833,8 +845,8 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
   <p class="hint pwawhy" data-i18n="pwa_why"></p>
   <label class="pwanev"><input type="checkbox" id="pwaNev"><span data-i18n="pwa_never">Ne plus me le rappeler</span></label>
   <div class="mrow">
-    <button class="hbtn pwago" id="pwaGo" data-i18n="pwa_install" style="display:none">Installer</button>
     <button class="hbtn" id="pwaNo" data-i18n="pwa_close">Fermer</button>
+    <button class="hbtn prim" id="pwaGo" data-i18n="pwa_install" style="display:none">Installer</button>
   </div>
 </div></div>
 <button type="button" id="pwaTab" data-i18n-title="pwa_title" title="Installe le jeu">📲</button>
@@ -843,10 +855,11 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
      simplement ignoré dans une iframe sandboxée (page hébergée) : il renvoie
      false sans rien afficher, et l'action ne partait jamais. -->
 <div id="ask"><div class="mbox askbox">
-  <p id="askTxt"></p>
+  <h2 id="askTitre"></h2>
+  <p class="hint" id="askTxt"></p>
   <div class="mrow">
-    <button class="hbtn askgo" id="askOk" data-i18n="ask_ok">Confirmer</button>
     <button class="hbtn" id="askNo" data-i18n="ask_no">Annuler</button>
+    <button class="hbtn prim" id="askOk" data-i18n="ask_ok">Confirmer</button>
   </div>
 </div></div>
 
@@ -855,8 +868,8 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
   <p class="hint" id="mHint" data-i18n="m_hint"></p>
   <textarea id="mText"></textarea>
   <div class="mrow">
-    <button class="hbtn" id="mImport" data-i18n="m_import">Importer</button>
     <button class="hbtn" id="mClose" data-i18n="m_close">Fermer</button>
+    <button class="hbtn prim" id="mImport" data-i18n="m_import">Importer</button>
   </div>
 </div></div>
 
@@ -945,7 +958,9 @@ fr:{
   pr_btn:"Lancer un nouveau cycle",
   pr_info:"antimatière au prochain cycle &nbsp;•&nbsp; chaque unité donne <b style=\"color:var(--violet)\">+{0} %</b> de production, le total étant amplifié à la <b style=\"color:var(--violet)\">puissance {3}</b><br>Bonus actuel : <b style=\"color:var(--green)\">×{1}</b> — cycles effectués : {2}",
   pr_note:"Il faut extraire {0} de minerai sur ce cycle pour gagner 1 antimatière — il t'en manque {1}{2}",
-  pr_confirm:"Lancer un nouveau cycle ?\n\nTu perds minerai, générateurs et améliorations,\nmais tu gagnes {0} antimatière (bonus permanent).",
+  pr_ask_t:"Lancer un nouveau cycle ?",
+  pr_lose:"• Tu perds le minerai, les structures et les améliorations du cycle.",
+  pr_confirm:"• Tu gagnes <b style=\"color:var(--violet)\">{0} antimatière</b> — un bonus permanent.",
   res_title:"Laboratoire — {0} antimatière disponible",
   au_title:"Automatisation — {0} antimatière disponible",
   au_hint:"Les automates se paient en <b style=\"color:var(--violet)\">antimatière</b>, se gardent d'un cycle à l'autre, et chacun peut être <b>coupé</b> avec son interrupteur sans être remboursé.",
@@ -976,8 +991,17 @@ fr:{
   ch_go:"DISPONIBLE", ch_running:"EN COURS", ch_won:"RÉUSSI", ch_locked:"VERROUILLÉ",
   ch_quit:"Quitter",
   ch_done_bar:"Objectif atteint — tu peux finir ton cycle tranquillement.",
-  ch_confirm:"Entrer dans « {0} » ?\n\nLe cycle en cours est encaissé (+{1} antimatière), puis la partie repart à zéro avec la règle du défi et tous les automates en pause.",
-  ch_quit_c:"Quitter le défi ? Le cycle est encaissé normalement, sans pénalité.",
+  ch_ask_t:"Entrer dans « {0} » ?",
+  ch_confirm:"Le cycle en cours est encaissé (<b style=\"color:var(--violet)\">+{0} antimatière</b>), puis la partie repart à zéro avec la règle du défi et tous les automates en pause.",
+  ch_quit_t:"Quitter le défi ?",
+  ch_quit_t_win:"Terminer le défi ?",
+  ch_out_am:"• Le cycle est encaissé : <b style=\"color:var(--violet)\">+{0} antimatière</b>.",
+  ch_out_noam:"• Le cycle n'a pas produit assez pour rapporter de l'antimatière.",
+  ch_out_rw:"• Défi réussi — <b style=\"color:var(--green)\">{0}</b>",
+  ch_out_lost:"• Objectif non atteint (<b style=\"color:var(--gold)\">{0} minerai</b>) — le défi restera disponible.",
+  ch_out_cap:"• Grâce à la {0} (niveau {1}), tu repars avec <b style=\"color:var(--gold)\">{2} minerai</b>.",
+  ch_out_auto:"• Tes automates redémarrent aux mêmes niveaux.",
+  ch_quit_c:"Le cycle est encaissé normalement, sans pénalité. Le défi restera disponible.",
   ch_none:"Aucun défi n'est encore accessible.",
   t_chal_in:"Défi lancé : {0}", t_chal_out:"Défi quitté : {0}",
   t_chal_out_am:"Défi quitté : {0} — +{1} antimatière",
@@ -1000,7 +1024,8 @@ fr:{
   t_welcome:"Bienvenue, commandant. Clique sur l'astéroïde.",
   t_nostorage:"Stockage indisponible ici : utilise « Export » pour garder ta partie.",
   t_away:"Absence de {0} → +{1} minerai", t_am:"+{0} antimatière !",
-  confirm_reset:"Effacer TOUTE la progression (y compris l'antimatière) ?",
+  reset_t:"Tout effacer ?",
+  confirm_reset:"Toute la progression est perdue, antimatière et recherches comprises. Cette action est définitive.",
   an_surge:"⚡ Surtension : production ×{0} pendant {1} s",
   an_echo:"✨ Écho quantique : clic ×{0} pendant {1} s",
   an_vein:"💎 Filon riche : +{0} minerai ({1} s de production)",
@@ -1055,7 +1080,9 @@ en:{
   pr_btn:"Start a new cycle",
   pr_info:"antimatter on the next cycle &nbsp;•&nbsp; each unit grants <b style=\"color:var(--violet)\">+{0} %</b> output, the total raised to the <b style=\"color:var(--violet)\">power {3}</b><br>Current bonus: <b style=\"color:var(--green)\">×{1}</b> — cycles completed: {2}",
   pr_note:"You need to mine {0} ore this cycle to earn 1 antimatter — {1} to go{2}",
-  pr_confirm:"Start a new cycle?\n\nYou lose ore, structures and upgrades,\nbut you gain {0} antimatter (permanent bonus).",
+  pr_ask_t:"Start a new cycle?",
+  pr_lose:"• You lose this cycle's ore, structures and upgrades.",
+  pr_confirm:"• You gain <b style=\"color:var(--violet)\">{0} antimatter</b> — a permanent bonus.",
   res_title:"Laboratory — {0} antimatter available",
   au_title:"Automation — {0} antimatter available",
   au_hint:"Automations are paid in <b style=\"color:var(--violet)\">antimatter</b>, kept from one cycle to the next, and each one can be <b>switched off</b> without being refunded.",
@@ -1086,8 +1113,17 @@ en:{
   ch_go:"AVAILABLE", ch_running:"RUNNING", ch_won:"CLEARED", ch_locked:"LOCKED",
   ch_quit:"Leave",
   ch_done_bar:"Goal reached — take your time finishing the cycle.",
-  ch_confirm:"Enter \"{0}\"?\n\nThe current cycle is banked (+{1} antimatter), then the run restarts from scratch under the challenge rule, with every automation paused.",
-  ch_quit_c:"Leave the challenge? The cycle is banked as usual, with no penalty.",
+  ch_ask_t:"Enter \"{0}\"?",
+  ch_confirm:"The current cycle is banked (<b style=\"color:var(--violet)\">+{0} antimatter</b>), then the run restarts from scratch under the challenge rule, with every automation paused.",
+  ch_quit_t:"Leave the challenge?",
+  ch_quit_t_win:"Finish the challenge?",
+  ch_out_am:"• The cycle is banked: <b style=\"color:var(--violet)\">+{0} antimatter</b>.",
+  ch_out_noam:"• The cycle did not produce enough to earn any antimatter.",
+  ch_out_rw:"• Challenge cleared — <b style=\"color:var(--green)\">{0}</b>",
+  ch_out_lost:"• Goal not reached (<b style=\"color:var(--gold)\">{0} ore</b>) — the challenge stays available.",
+  ch_out_cap:"• Thanks to the {0} (level {1}), you restart with <b style=\"color:var(--gold)\">{2} ore</b>.",
+  ch_out_auto:"• Your automations resume at the same levels.",
+  ch_quit_c:"The cycle is banked as usual, with no penalty. The challenge stays available.",
   ch_none:"No challenge is available yet.",
   t_chal_in:"Challenge started: {0}", t_chal_out:"Challenge left: {0}",
   t_chal_out_am:"Challenge left: {0} — +{1} antimatter",
@@ -1110,7 +1146,8 @@ en:{
   t_welcome:"Welcome, commander. Click the asteroid.",
   t_nostorage:"Storage unavailable here: use “Export” to keep your game.",
   t_away:"Away for {0} → +{1} ore", t_am:"+{0} antimatter!",
-  confirm_reset:"Erase ALL progress (including antimatter)?",
+  reset_t:"Erase everything?",
+  confirm_reset:"All progress is lost, antimatter and research included. This cannot be undone.",
   an_surge:"⚡ Power surge: output ×{0} for {1} s",
   an_echo:"✨ Quantum echo: clicks ×{0} for {1} s",
   an_vein:"💎 Rich vein: +{0} ore ({1} s of output)",
@@ -1703,7 +1740,7 @@ const CHALS=[
       en:"No anomaly appears for the whole cycle."},
   rw:{fr:"Anomalies 20 % plus fréquentes, définitivement.",
       en:"Anomalies 20 % more frequent, for good."}},
- {id:"mains",   ico:"🤐", regle:"noclick", bonus:"prod25", coef:0.2,
+ {id:"mains",   ico:"⛓️", regle:"noclick", bonus:"prod25", coef:0.2,
   nm:{fr:"Mains liées",en:"Hands tied"},
   ds:{fr:"Le clic ne rapporte rien : tout doit venir des structures.",
       en:"Clicking yields nothing: everything must come from structures."},
@@ -1988,9 +2025,20 @@ function finCycle(force){
 /* demande(texte, siOui) — remplace confirm(). Asynchrone par nature : tout ce
    qui suivait un confirm() doit passer dans le rappel. */
 let askCb=null;
-function demande(txt,cb){
-  askCb=cb; txt=String(txt);
-  $("#askTxt").textContent=txt;
+function demande(titre,txt,cb){
+  askCb=cb;
+  $("#askTitre").textContent=String(titre);
+  txt=String(txt);
+  /* Le corps porte du balisage : chaque valeur est teintée de la couleur de sa
+     ressource, les mêmes que les tuiles de l'en-tête (minerai doré, antimatière
+     violette). Les textes viennent tous du dictionnaire, jamais du joueur. */
+  const el=$("#askTxt"); el.textContent="";
+  if(txt.indexOf("•")===0)
+    txt.split("\n").forEach(l=>{
+      const d=document.createElement("div"); d.className="puce"; d.innerHTML=l;
+      el.appendChild(d);
+    });
+  else el.innerHTML=txt;
   $("#ask").classList.add("on");
 }
 function askFin(ok){
@@ -2010,7 +2058,13 @@ function doPrestige(muet){
     finCycle(false);
     toast(muet?t("t_autocyc",fmt(n)):t("t_am",fmt(n)),"violet"); save(); render();
   };
-  if(muet)fait(); else demande(t("pr_confirm",fmt(g)),fait);
+  if(muet){fait();return}
+  // même présentation en liste que le bilan de sortie d'un défi : c'est la
+  // même opération, elle ne doit pas se raconter de deux façons différentes
+  const cap=lvl("capsule"), l=[t("pr_lose"),t("pr_confirm",fmt(g))];
+  if(cap)l.push(t("ch_out_cap",tr(RES.find(r=>r.id==="capsule").nm),cap,
+                  fmt(1e4*Math.pow(25,cap))));
+  demande(t("pr_ask_t"),l.join("\n"),fait);
 }
 
 /* ---------- entrer / quitter / réussir un défi ---------- */
@@ -2019,7 +2073,7 @@ function doPrestige(muet){
    moment » et lancer un défi devient une corvée à planifier. */
 function entrerChal(c){
   if(S.chal||chalFait(c.id))return;
-  demande(t("ch_confirm",tr(c.nm),fmt(amGain())),()=>{
+  demande(t("ch_ask_t",tr(c.nm)),t("ch_confirm",fmt(amGain())),()=>{
     if(S.chal||chalFait(c.id))return;   // relu : l'état a pu changer entre-temps
     finCycle(true);                     // met aussi bestRun à jour
     S.chal=c.id; S.chalStart=Date.now(); S.chalBut=chalBut(c);
@@ -2034,6 +2088,19 @@ function entrerChal(c){
     if(chalRegle("noclick"))S.ore=Math.max(S.ore,genCost(GENS[0],20));
     toast(t("t_chal_in",tr(c.nm)),"violet"); save(); render();
   });
+}
+/* Ce que le joueur emporte en quittant. Écrit noir sur blanc plutôt que
+   découvert après coup : sortir d'un défi est un moment où il faut savoir ce
+   qu'on gagne, sinon on hésite à en lancer un. */
+function bilanSortie(c){
+  const l=[], g=amGain(), cap=lvl("capsule");
+  l.push(g>=1?t("ch_out_am",fmt(g)):t("ch_out_noam"));
+  if(chalFait(c.id))l.push(t("ch_out_rw",tr(c.rw)));
+  else l.push(t("ch_out_lost",fmt(butActif())));
+  if(cap)l.push(t("ch_out_cap",tr(RES.find(r=>r.id==="capsule").nm),cap,
+                fmt(1e4*Math.pow(25,cap))));
+  l.push(t("ch_out_auto"));
+  return l.join("\n");
 }
 /* Quitter : nouvelle remise à zéro, aucune pénalité, et l'antimatière gagnée
    pendant le défi est encaissée comme sur un cycle ordinaire — un défi n'est
@@ -2620,7 +2687,7 @@ function renderPrestige(){
   // façon, mais un bouton actif qui ne fait rien est une promesse non tenue
   const b=$("#prBtn"), off=(g<1||!!S.chal); if(b.disabled!==off)b.disabled=off;
 
-  html($("#resTitle"),t("res_title",'<b style="color:var(--violet)">'+fmt(S.am)+"</b>"));
+  html($("#resTitle"),t("res_title",'<b style=\"color:var(--violet)\">'+fmt(S.am)+"</b>"));
   syncList($("#resList"),RES.map(r=>{
     const l=lvl(r.id), maxed=l>=r.max, cost=resCost(r,l);
     const c=getCard("res:"+r.id,()=>buyRes(r));
@@ -2638,7 +2705,7 @@ function renderPrestige(){
 }
 
 function renderAuto(){
-  html($("#auTitle"),t("au_title",'<b style="color:var(--violet)">'+fmt(S.am)+"</b>"));
+  html($("#auTitle"),t("au_title",'<b style=\"color:var(--violet)\">'+fmt(S.am)+"</b>"));
   syncList($("#auList"),AUTOS.map(a=>{
     const l=alvl(a.id), maxed=l>=a.max, cost=autoCost(a,l), coupe=l>0&&!aOn(a.id);
     const c=getAutoCard(a);
@@ -3064,7 +3131,7 @@ function load(){
 }
 bindAction($("#bSave"),()=>{save();toast(t("t_saved"))});
 bindAction($("#bReset"),()=>{
-  demande(t("confirm_reset"),()=>{
+  demande(t("reset_t"),t("confirm_reset"),()=>{
     S=NEW(); save(); render(); toast(t("t_newgame"));
   });
 });
@@ -3134,7 +3201,10 @@ window.addEventListener("appinstalled",()=>{
   pwaEcrit("ok"); $("#pwa").classList.remove("on"); pwaPastille(false);
 });
 bindAction($("#pwaNo"),pwaFerme);
-bindAction($("#cbQuit"),()=>demande(t("ch_quit_c"),()=>quitterChal()));
+bindAction($("#cbQuit"),()=>{
+  const c=chalCur(); if(!c)return;
+  demande(t(chalFait(c.id)?"ch_quit_t_win":"ch_quit_t"),bilanSortie(c),()=>quitterChal());
+});
 bindAction($("#pwaTab"),pwaOuvre);
 bindAction($("#pwaGo"),()=>{
   if(!pwaPrompt)return;
