@@ -895,7 +895,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.4";
+const VERSION="3.0.0-dev.5";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -996,6 +996,8 @@ fr:{
   t_auto_excl:"{0} : remis en marche — {1} est mis en pause",
   t_auto_lock:"Coupe d'abord {0} pour libérer celui-ci.",
   ch_hint:"Un défi casse <b>une règle du jeu</b> pour tout un cycle. Entrer encaisse d'abord le cycle en cours et te crédite l'antimatière en attente. L'objectif se calcule sur <b>ton meilleur cycle</b> et se fige au moment où tu entres. Réussi une fois, un défi est validé <b>définitivement</b> et sa récompense reste active en dehors.",
+  ch_soon:"🔒 Les <b>défis</b> s'ouvrent au <b>cycle {1}</b> — encore <b style=\"color:var(--cyan)\">{0} cycles</b>.<br>Chacun casse une règle du jeu pour un cycle entier, avec un objectif calculé sur ton meilleur cycle. Le réussir donne une <b style=\"color:var(--green)\">récompense définitive</b>, active même en dehors du défi.",
+  ch_soon1:"🔒 Les <b>défis</b> s'ouvrent au <b>cycle {1}</b> — <b style=\"color:var(--cyan)\">plus qu'un cycle</b> !<br>Chacun casse une règle du jeu pour un cycle entier, avec un objectif calculé sur ton meilleur cycle. Le réussir donne une <b style=\"color:var(--green)\">récompense définitive</b>, active même en dehors du défi.",
   ch_head:"Réussis : {0}/{1}",
   ch_goal:"Objectif : {0} minerai sur le cycle",
   ch_prog:"{0} / {1} minerai",
@@ -1118,6 +1120,8 @@ en:{
   t_auto_excl:"{0}: switched back on — {1} is paused",
   t_auto_lock:"Switch {0} off first to free this one.",
   ch_hint:"A challenge breaks <b>one rule of the game</b> for a whole cycle. Entering banks the current cycle first and credits the antimatter you had pending. The goal is computed from <b>your best cycle</b> and frozen the moment you enter. Once beaten, a challenge is cleared <b>for good</b> and its reward stays active outside of it.",
+  ch_soon:"🔒 <b>Challenges</b> open at <b>cycle {1}</b> — <b style=\"color:var(--cyan)\">{0} cycles</b> to go.<br>Each one breaks a rule of the game for a whole cycle, with a goal computed from your best cycle. Beating it grants a <b style=\"color:var(--green)\">permanent reward</b> that stays active outside the challenge.",
+  ch_soon1:"🔒 <b>Challenges</b> open at <b>cycle {1}</b> — <b style=\"color:var(--cyan)\">one cycle to go</b>!<br>Each one breaks a rule of the game for a whole cycle, with a goal computed from your best cycle. Beating it grants a <b style=\"color:var(--green)\">permanent reward</b> that stays active outside the challenge.",
   ch_head:"Cleared: {0}/{1}",
   ch_goal:"Goal: {0} ore in the cycle",
   ch_prog:"{0} / {1} ore",
@@ -1834,8 +1838,14 @@ const chalFait=id=>!!S.chalDone[id];
 const chalRegle=k=>{const c=chalCur();return !!c&&c.regle===k};
 /* récompense acquise : le défi correspondant a été réussi une fois */
 const chalBonus=k=>CHALS.some(c=>c.bonus===k&&chalFait(c.id));
-const CHAL_CYCLES=10;                       // l'onglet apparaît après 10 cycles
-const chalVisible=()=>S.prestiges>=CHAL_CYCLES||!!S.chal||Object.keys(S.chalDone).length>0;
+/* Les défis s'ouvrent au 6e cycle. L'onglet, lui, apparaît dès le premier —
+   grisé mais cliquable — avec le décompte des cycles restants : un onglet qui
+   surgit de nulle part au 6e cycle n'annonce rien, et un joueur qui ignore que
+   les défis existent ne travaille pas vers eux. */
+const CHAL_CYCLES=6;
+const chalOuvert=()=>S.prestiges>=CHAL_CYCLES||!!S.chal||Object.keys(S.chalDone).length>0;
+const chalVisible=()=>S.prestiges>=1||chalOuvert();   // onglet visible, ouvert ou non
+const chalReste=()=>Math.max(0,CHAL_CYCLES-S.prestiges);
 
 /* ---------- état ---------- */
 const NEW=()=>({
@@ -2117,7 +2127,7 @@ function doPrestige(muet){
    attente, puis remet à zéro. Sans ça le joueur attend toujours « le bon
    moment » et lancer un défi devient une corvée à planifier. */
 function entrerChal(c){
-  if(S.chal||chalFait(c.id))return;
+  if(!chalOuvert()||S.chal||chalFait(c.id))return;
   demande(t("ch_ask_t",tr(c.nm)),t("ch_confirm",fmt(amGain())),()=>{
     if(S.chal||chalFait(c.id))return;   // relu : l'état a pu changer entre-temps
     /* Le handicap se mesure sur la colonie ENCORE EN PLACE : finCycle() efface
@@ -2564,7 +2574,8 @@ function buildSkeleton(){
      La liste est fixe (six défis) : on construit les cartes une fois pour
      toutes et renderChals() ne fait plus que remplir du texte. Pas de
      syncList ici, il n'y a rien à réordonner. */
-  $("#pCh").innerHTML='<p class="hint">'+t("ch_hint")+'</p>'+
+  $("#pCh").innerHTML='<div class="chlock" id="chLock" style="display:none"></div>'+
+    '<p class="hint" id="chHint">'+t("ch_hint")+'</p>'+
     '<h3 class="sec chsec"><span id="chHeadT"></span><span class="secn" id="chHeadN"></span></h3>'+
     '<div id="chList"></div>';
   const cb=$("#chList"); CHNODES=[];
@@ -2864,6 +2875,13 @@ function renderAchs(){
 }
 
 function renderChals(){
+  /* Avant le 6e cycle l'onglet est consultable mais vide : on remplace la liste
+     par le décompte, sinon le joueur verrait six cartes sur lesquelles cliquer
+     ne ferait rien. */
+  const ouvert=chalOuvert(), n=chalReste();
+  show($("#chLock"),!ouvert); show($("#chHint"),ouvert);
+  show($("#chList"),ouvert); show($(".chsec"),ouvert);
+  if(!ouvert){ html($("#chLock"),t(n===1?"ch_soon1":"ch_soon",n,CHAL_CYCLES)); return }
   const faits=CHALS.filter(c=>chalFait(c.id)).length;
   txt($("#chHeadT"),"🎯 "+t("tab_ch"));
   html($("#chHeadN"),faits+"/"+CHALS.length);
@@ -2975,7 +2993,8 @@ function render(){
   cls($$(".tab").find(x=>x.dataset.p==="pr"),"chdim",bloque);
   show($("#auLock"),bloque&&alvl("cycle")>0); show($("#prLock"),bloque);
   let nouv=show($("#tabAu"),S.amTotal>0);           // l'onglet apparaît au premier cycle
-  if(show($("#tabCh"),chalVisible()))nouv=true;     // celui des défis, après 10 cycles
+  if(show($("#tabCh"),chalVisible()))nouv=true;     // celui des défis aussi, mais grisé
+  cls($("#tabCh"),"chdim",!chalOuvert());           // jusqu'au 6e cycle
   if(nouv)majNavFade();
   const n=upBadge(), badge=$("#bUp");
   txt(badge,n); cls(badge,"hidden",n===0);

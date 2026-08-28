@@ -42,7 +42,8 @@ planifier.
 
 ### La boucle
 
-- Nouvel onglet **Défis**, révélé après une dizaine de cycles.
+- Nouvel onglet **Défis**, visible dès le premier cycle mais **grisé**, avec le
+  décompte des cycles restants ; il s'ouvre au **6e cycle**.
 - Six défis, chacun avec son état : verrouillé / disponible / en cours / réussi.
 - Entrer → encaissement du cycle → remise à zéro (minerai, structures,
   améliorations) → la règle cassée s'applique.
