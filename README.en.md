@@ -16,6 +16,8 @@ Free software under [GPL 3.0 or later](#licence).
 ## Contents
 
 - [Files and deployment](#files-and-deployment)
+- [The world of the game](#the-world-of-the-game)
+- [Menu, tutorial and about](#menu-tutorial-and-about)
 - [Game loop](#game-loop)
 - [Clicking](#clicking)
 - [Structures](#structures)
@@ -95,6 +97,80 @@ the first time you tap the pill.
 first, so a plain reload is enough after a deployment. If you change **the icons
 or the manifest**, bump `CACHE` at the top of `sw.js` (`colonie-orbitale-v2` →
 `-v3`) to force the cache to refresh.
+
+---
+
+## The world of the game
+
+The name is not decorative: it describes the loop.
+
+> You are not building on a world. You are building **around** one.
+>
+> The colony turns four hundred kilometres above a dead planet, anchored to an
+> asteroid captured into the same orbit. Nothing lands, nothing leaves:
+> everything you build stays suspended there, between the void and the gravity
+> well.
+>
+> And the orbit decays. Always. Every colony falls back in the end, and all that
+> survives is a handful of antimatter torn from its own descent — enough to
+> build the next one a little higher, a little faster.
+>
+> That is where the name comes from: **an orbital colony is never finished, it
+> is only falling more slowly than the last one.**
+
+This text is the `lore` key of the `T` dictionary, in French and English. It
+opens the tutorial and can be read again in the About panel. It also justifies
+prestige: restarting a cycle is not a genre convention, it is the orbit giving
+way.
+
+---
+
+## Menu, tutorial and about
+
+Up to 2.35 the top bar carried three buttons — Save, Export / Import, Reset.
+3.0.0 groups them behind **a single Menu button**: at five entries the bar no
+longer fitted on a phone, and Reset sat dangerously next to Save.
+
+The menu holds a what's-new summary (the `wn_d` key, three lines, to be
+rewritten at every notable version) then six entries: Save, Export / Import,
+Tutorial, Changelog, About, and Reset — the only irreversible action, hence the
+only red one, the only full-width one, and the last one.
+
+**Window stacking order**, to respect if another one is added:
+
+| Window | z-index |
+|---|---|
+| Menu | 82 |
+| Export / Import, Changelog, About | 84 |
+| Tutorial | 86 |
+| Install prompt (PWA) | 90 |
+| Confirmation (`demande()`) | 95 |
+
+Export opens **from** the menu: at 80 it opened behind it, visible but unusable,
+with the menu intercepting clicks.
+
+**Changelog** — the `LOG` table embeds the last eight versions summarised in one
+sentence, bilingual, with a link to the repository's full `CHANGELOG.md`. The
+full file is 37 KB per language and the game has to stay playable offline: the
+excerpt is the accepted trade-off, to be kept up to date at every release.
+
+**Tutorial** — five screens (`TUTO`): the lore, the asteroid, structures,
+upgrades and anomalies, the cycle. It opens **by itself on the first run** and
+can be replayed from the menu.
+
+Two delicate points:
+
+- It comes **before** the PWA install prompt. `tutoFerme()` calls `majPwa()`
+  only if the tutorial had opened automatically — two stacked dialogs on the
+  first launch is one too many.
+- A run already in progress does not trigger it. The `S.tuto` field does not
+  exist in pre-3.0.0 saves and reads 0 there, so `partieVierge()` also looks at
+  `totalOre`, `prestiges` and `clicks`, and the flag is set immediately so it
+  never comes back.
+
+**About** — the lore, then five rows: source code, Patreon, author, licence and
+version. The two outbound links are the `LIEN_CODE` and `LIEN_PATREON`
+constants, at the top of the block, and carry `rel="noopener noreferrer"`.
 
 ---
 

@@ -17,6 +17,8 @@ Logiciel libre sous [GPL 3.0 ou ultérieure](#licence).
 ## Sommaire
 
 - [Fichiers et déploiement](#fichiers-et-déploiement)
+- [Le monde du jeu](#le-monde-du-jeu)
+- [Menu, tutoriel et à propos](#menu-tutoriel-et-à-propos)
 - [Boucle de jeu](#boucle-de-jeu)
 - [Le clic](#le-clic)
 - [Les structures](#les-structures)
@@ -99,6 +101,81 @@ pas se transformer en refus définitif au premier passage par la pastille.
 réseau en priorité, donc un simple rechargement suffit après un déploiement. Si
 tu modifies **les icônes ou le manifeste**, incrémente `CACHE` en haut de
 `sw.js` (`colonie-orbitale-v2` → `-v3`) pour forcer le renouvellement du cache.
+
+---
+
+## Le monde du jeu
+
+Le nom du jeu n'est pas décoratif : il décrit la boucle.
+
+> Tu ne construis pas sur un monde. Tu construis **autour**.
+>
+> La colonie tourne à quatre cents kilomètres au-dessus d'une planète morte,
+> accrochée à un astéroïde capturé dans la même orbite qu'elle. Rien ne se pose,
+> rien ne repart : tout ce que tu bâtis reste suspendu là, entre le vide et la
+> gravité.
+>
+> Et l'orbite se dégrade. Toujours. Chaque colonie finit par retomber, et il ne
+> reste d'elle qu'une poignée d'antimatière arrachée à sa propre chute — de quoi
+> bâtir la suivante un peu plus haut, un peu plus vite.
+>
+> C'est de là que vient le nom : **une colonie orbitale n'est jamais finie, elle
+> est seulement en train de tomber moins vite que la précédente.**
+
+Ce texte est la clé `lore` du dictionnaire `T`, en français et en anglais. Il
+ouvre le tutoriel et se relit dans « À propos ». Il justifie aussi le prestige :
+relancer un cycle n'est pas une convention de genre, c'est l'orbite qui cède.
+
+---
+
+## Menu, tutoriel et à propos
+
+Jusqu'à la 2.35 la barre du haut portait trois boutons — Sauvegarder,
+Export / Import, Reset. La 3.0.0 les regroupe derrière **un seul bouton Menu** :
+à cinq entrées la barre ne tenait plus sur téléphone, et Reset y voisinait
+dangereusement avec Sauvegarder.
+
+Le menu contient un résumé des nouveautés (clé `wn_d`, trois lignes, à réécrire
+à chaque version notable) puis six entrées : Sauvegarder, Export / Import,
+Tutoriel, Changelog, À propos, et Reset — seule action irréversible, donc seule
+en rouge, seule sur toute la largeur, et en dernier.
+
+**Ordre d'empilement des fenêtres**, à respecter si on en ajoute une :
+
+| Fenêtre | z-index |
+|---|---|
+| Menu | 82 |
+| Export / Import, Changelog, À propos | 84 |
+| Tutoriel | 86 |
+| Invitation à installer (PWA) | 90 |
+| Confirmation (`demande()`) | 95 |
+
+L'export s'ouvre **depuis** le menu : à 80 il s'ouvrait derrière lui, visible
+mais inutilisable, le menu interceptant les clics.
+
+**Changelog** — le tableau `LOG` embarque les huit dernières versions résumées
+en une phrase, bilingues, et un lien mène au `CHANGELOG.md` complet du dépôt.
+Le fichier complet fait 37 Ko par langue et le jeu doit rester jouable hors
+connexion : l'extrait est la contrepartie assumée, à tenir à jour à chaque
+livraison.
+
+**Tutoriel** — cinq écrans (`TUTO`) : le lore, l'astéroïde, les structures, les
+améliorations et anomalies, le cycle. Il s'ouvre **tout seul à la première
+partie** et se relance depuis le menu.
+
+Deux points délicats :
+
+- Il passe **avant** l'invitation à installer la PWA. `tutoFerme()` appelle
+  `majPwa()` seulement si le tutoriel avait été ouvert automatiquement — deux
+  fenêtres empilées au premier lancement, c'est une de trop.
+- Une partie déjà commencée ne le déclenche pas. Le champ `S.tuto` n'existe pas
+  dans les sauvegardes antérieures à la 3.0.0 et y vaut donc 0 : `partieVierge()`
+  regarde aussi `totalOre`, `prestiges` et `clicks`, et le drapeau est posé
+  immédiatement pour ne plus jamais y revenir.
+
+**À propos** — le lore, puis cinq lignes : code source, Patreon, auteur, licence
+et version. Les deux liens sortants sont les constantes `LIEN_CODE` et
+`LIEN_PATREON`, en tête du bloc, et portent `rel="noopener noreferrer"`.
 
 ---
 

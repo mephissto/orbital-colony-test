@@ -574,10 +574,20 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 @keyframes slide{from{transform:translateX(50px);opacity:0}}
 
 /* modal */
-#modal{position:fixed;inset:0;z-index:80;background:rgba(2,4,10,.82);display:none;
+/* Ordre d'empilement des fenêtres : menu 82 < export/changelog/à propos 84 <
+   tutoriel 86 < invitation PWA 90 < confirmation 95. L'export s'ouvre DEPUIS le
+   menu et doit donc passer au-dessus de lui — à 80 il s'ouvrait derrière, et le
+   menu interceptait les clics : la fenêtre était visible mais inutilisable. */
+#modal{position:fixed;inset:0;z-index:84;background:rgba(2,4,10,.82);display:none;
   align-items:center;justify-content:center;padding:20px}
 #modal.on{display:flex}
-.mbox{max-width:520px;width:100%;background:#0b1120;border:1px solid var(--line);border-radius:14px;padding:22px}
+/* Une fenêtre plus haute que l'écran défile à l'intérieur : le lore et le
+   changelog dépassent sur un petit téléphone, et sans ceci les boutons du bas
+   sortaient de l'écran, sans moyen de fermer. */
+.mbox{max-width:520px;width:100%;background:#0b1120;border:1px solid var(--line);border-radius:14px;
+  padding:22px;max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.mbox::-webkit-scrollbar{width:8px}
+.mbox::-webkit-scrollbar-thumb{background:rgba(79,216,255,.25);border-radius:8px}
 .mbox h2{margin:0 0 10px;font-size:20px;font-weight:700;color:var(--cyan);text-wrap:balance}
 /* Action principale : une seule par fenêtre, accentuée, toujours la dernière
    donc à droite — la place où le pouce revient. */
@@ -606,6 +616,87 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 #askTxt .puce{white-space:normal;padding-left:1.05em;text-indent:-1.05em;margin-top:4px}
 #askTxt .puce:first-child{margin-top:0}
 .askbox .mrow{justify-content:flex-end}
+
+/* ---------- menu, changelog, à propos, tutoriel ---------- */
+/* Quatre fenêtres bâties sur la même .mbox que les trois précédentes : même
+   titre en gras, même rangée de boutons en bas, action principale accentuée et
+   à droite. Elles se superposent (le menu reste ouvert derrière), d'où des
+   z-index croissants. */
+#menu,#chlog,#about,#tuto{position:fixed;inset:0;background:rgba(2,4,10,.86);display:none;
+  align-items:center;justify-content:center;padding:20px}
+#menu.on,#chlog.on,#about.on,#tuto.on{display:flex}
+#menu{z-index:82}#chlog{z-index:84}#about{z-index:84}#tuto{z-index:86}
+.menubox,.aboutbox{max-width:460px}
+.logbox{max-width:560px}
+.tutobox{max-width:440px}
+
+/* Résumé des nouveautés, en tête du menu : trois lignes, pas un changelog. */
+.whatsnew{border:1px solid rgba(79,216,255,.28);border-radius:11px;
+  background:rgba(79,216,255,.07);padding:11px 13px;margin-bottom:14px}
+.wnh{display:flex;align-items:baseline;gap:8px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--cyan);font-weight:700}
+.wnv{margin-left:auto;color:var(--dim);letter-spacing:.04em;font-weight:400;
+  text-transform:none;font-variant-numeric:tabular-nums}
+.wnd{font-size:12.5px;color:var(--txt);margin-top:6px;line-height:1.5}
+
+/* Grille de boutons du menu : deux colonnes partout — à une seule, la fenêtre
+   dépassait la hauteur d'un téléphone et Reset se retrouvait hors écran. */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mitem{display:flex;align-items:center;gap:10px;text-align:left;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:11px;
+  color:var(--txt);padding:12px 13px;cursor:pointer;font-size:13px;transition:.15s;
+  font-family:inherit;text-decoration:none}
+.mitem:hover{border-color:var(--cyan);color:#fff;background:rgba(79,216,255,.1)}
+.mitem .mi{font-size:19px;line-height:1;flex:none}
+.mitem .ml{min-width:0}
+/* Reset : seule action irréversible de la fenêtre, donc seule à être rouge et
+   seule à occuper toute la largeur, en dernier. On ne la touche pas par erreur
+   en visant le bouton d'à côté. */
+.mitem.danger{grid-column:1/-1;border-color:rgba(255,107,138,.35);color:var(--red)}
+.mitem.danger:hover{border-color:var(--red);background:rgba(255,107,138,.12);color:#fff}
+
+/* Changelog : la liste défile, les boutons restent visibles en dessous. */
+.loglist{max-height:min(52vh,420px);overflow-y:auto;padding-right:4px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding-top:10px;padding-bottom:10px}
+.loglist::-webkit-scrollbar{width:8px}
+.loglist::-webkit-scrollbar-thumb{background:rgba(79,216,255,.25);border-radius:8px}
+.logv{margin-top:13px}.logv:first-child{margin-top:0}
+.logvh{display:flex;align-items:baseline;gap:9px}
+.logvn{font-size:13px;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums}
+.logvt{font-size:12.5px;color:var(--txt);font-weight:600}
+.logvd{font-size:12px;color:var(--dim);line-height:1.5;margin-top:3px}
+a.hbtn{text-decoration:none}
+
+/* À propos : le lore, puis les liens. */
+.lore{font-size:12.5px;line-height:1.6;color:var(--txt);
+  border-left:2px solid var(--violet);padding-left:12px;margin-bottom:15px}
+.lore p{margin:0 0 8px}.lore p:last-child{margin-bottom:0}
+.lore b{color:var(--violet)}
+.ablist{display:grid;gap:8px}
+.abrow{display:flex;align-items:center;gap:11px;padding:10px 12px;
+  border:1px solid var(--line);border-radius:11px;background:var(--panel-2);
+  color:var(--txt);text-decoration:none;font-size:12.5px;transition:.15s}
+a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
+.abrow .ai{font-size:18px;line-height:1;flex:none}
+.abrow .ak{color:var(--dim);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.abrow .av{color:var(--txt)}
+.abrow .av b{color:var(--cyan);font-weight:600}
+
+/* Tutoriel : un écran à la fois, hauteur figée pour que les boutons ne sautent
+   pas d'un écran à l'autre. */
+.tuico{font-size:34px;line-height:1;margin-bottom:8px}
+.tutxt{font-size:13px;line-height:1.6;color:var(--txt);min-height:118px}
+.tutxt b{color:var(--cyan)}
+.tutxt .lore{border-left-color:var(--violet);margin-bottom:0;font-size:12.5px}
+.tutxt .lore b{color:var(--violet)}
+.tudots{display:flex;gap:6px;justify-content:center;margin-top:14px}
+.tudot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.2s}
+.tudot.on{background:var(--cyan);transform:scale(1.25)}
+@media (max-width:640px){
+  .tutxt{min-height:150px}
+  .mitem{padding:12px 10px;font-size:12.5px;gap:8px}
+}
 
 /* --- les défis --- */
 /* Bandeau du défi en cours : masqué par défaut, affiché par majChalBar(). */
@@ -794,15 +885,9 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
     <div class="spacer"></div>
     <div class="tools">
       <div class="langsel" id="langSel"><button class="langbtn" id="langBtn" aria-haspopup="listbox" aria-expanded="false" data-i18n-title="lang_title"><span class="langcode" id="langFlag"></span><svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="langmenu" id="langMenu" role="listbox"></div></div>
-      <button class="hbtn" id="bSave" data-i18n-title="save">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-        <span data-i18n="save">Sauvegarder</span></button>
-      <button class="hbtn" id="bExport" data-i18n-title="export">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M8 17V4m0 0L4 8m4-4 4 4"/><path d="M16 7v13m0 0 4-4m-4 4-4-4"/></svg>
-        <span data-i18n="export">Export / Import</span></button>
-      <button class="hbtn" id="bReset" data-i18n-title="reset">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-        <span data-i18n="reset">Reset</span></button>
+      <button class="hbtn" id="bMenu" data-i18n-title="menu">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <span data-i18n="menu">Menu</span></button>
     </div>
   </div>
 </header>
@@ -936,6 +1021,58 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
   </div>
 </div></div>
 
+<!-- Menu principal : les trois boutons de la barre d'outils (Sauvegarder,
+     Export/Import, Reset) y ont été regroupés en 3.0.0, avec l'aide et « à
+     propos ». Une barre à cinq boutons ne tenait plus sur téléphone, et Reset
+     y voisinait dangereusement avec Sauvegarder. -->
+<div id="menu"><div class="mbox menubox">
+  <h2 data-i18n="menu_t">Menu</h2>
+  <div class="whatsnew">
+    <div class="wnh"><span data-i18n="wn_t">Nouveautés</span><span class="wnv" id="wnVer"></span></div>
+    <div class="wnd" data-i18n="wn_d" data-i18n-html></div>
+  </div>
+  <div class="mgrid" id="mGrid"></div>
+  <div class="mrow">
+    <button class="hbtn prim" id="menuClose" data-i18n="m_close">Fermer</button>
+  </div>
+</div></div>
+
+<!-- Changelog embarqué : seulement les dernières versions, résumées. Le fichier
+     CHANGELOG.md complet fait 37 Ko à lui seul et le jeu doit rester jouable
+     hors connexion — d'où un extrait dans le fichier et un lien vers le reste. -->
+<div id="chlog"><div class="mbox logbox">
+  <h2 data-i18n="log_t">Changelog</h2>
+  <p class="hint" data-i18n="log_hint"></p>
+  <div class="loglist" id="logList"></div>
+  <div class="mrow">
+    <a class="hbtn" id="logFull" target="_blank" rel="noopener noreferrer" data-i18n="log_full">Historique complet</a>
+    <button class="hbtn prim" id="logClose" data-i18n="m_close">Fermer</button>
+  </div>
+</div></div>
+
+<div id="about"><div class="mbox aboutbox">
+  <h2 data-i18n="ab_t">À propos</h2>
+  <div class="lore" id="abLore" data-i18n="lore" data-i18n-html></div>
+  <div class="ablist" id="abList"></div>
+  <div class="mrow">
+    <button class="hbtn prim" id="abClose" data-i18n="m_close">Fermer</button>
+  </div>
+</div></div>
+
+<!-- Tutoriel : diaporama de cinq écrans, ouvert tout seul à la première partie
+     et relançable depuis le menu. Il passe AVANT l'invitation à installer la
+     PWA — deux fenêtres empilées au premier lancement, c'est une de trop. -->
+<div id="tuto"><div class="mbox tutobox">
+  <div class="tuico" id="tuIco"></div>
+  <h2 id="tuTitre"></h2>
+  <div class="tutxt" id="tuTxt"></div>
+  <div class="tudots" id="tuDots"></div>
+  <div class="mrow">
+    <button class="hbtn" id="tuSkip" data-i18n="tu_skip">Passer</button>
+    <button class="hbtn prim" id="tuNext" data-i18n="tu_next">Suivant</button>
+  </div>
+</div></div>
+
 <div id="modal"><div class="mbox">
   <h2 id="mTitle" data-i18n="m_title">Sauvegarde</h2>
   <p class="hint" id="mHint" data-i18n="m_hint"></p>
@@ -960,7 +1097,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.10";
+const VERSION="3.0.0-dev.12";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -992,6 +1129,34 @@ fr:{
   logo:"◈ Colonie Orbitale", doc_title:"Colonie Orbitale — idle game spatial",
   save:"Sauvegarder", export:"Export / Import", reset:"Reset",
   lang_title:"Langue",
+  menu:"Menu", menu_t:"Menu",
+  wn_t:"Nouveautés", 
+  wn_d:"Six <b>défis</b> qui cassent chacun une règle du jeu, ouverts au 6<sup>e</sup> cycle. Le <b>clic</b> compte enfin en début de partie. Le <b>Contremaître</b> achète par lots de 1, 10 ou 25.",
+  log_t:"Changelog", log_full:"Historique complet",
+  log_hint:"Les dernières versions, en résumé. L'historique complet est dans le dépôt.",
+  ab_t:"À propos",
+  ab_code:"Code source", ab_code_v:"Fichier unique, sans dépendance",
+  ab_lic:"Licence", ab_lic_v:"GPL 3.0 ou ultérieure — libre de le lire, le modifier, le redistribuer",
+  ab_auth:"Créé par", ab_auth_v:"<b>Guilhem</b>, avec l'aide de Claude (Anthropic)",
+  ab_patreon:"Soutenir", ab_patreon_v:"Le jeu est gratuit, sans publicité et sans compte",
+  ab_ver:"Version",
+  tu_skip:"Passer", tu_next:"Suivant", tu_play:"Jouer",
+  m_tuto:"Tutoriel", m_log:"Changelog", m_about:"À propos",
+  /* Le lore justifie le nom du jeu ET la boucle de prestige : une colonie qui
+     retombe, et dont la chute finance la suivante. */
+  lore:"<p>Tu ne construis pas sur un monde. Tu construis <b>autour</b>.</p>"+
+       "<p>La colonie tourne à quatre cents kilomètres au-dessus d'une planète morte, accrochée à un astéroïde capturé dans la même orbite qu'elle. Rien ne se pose, rien ne repart : tout ce que tu bâtis reste suspendu là, entre le vide et la gravité.</p>"+
+       "<p>Et l'orbite se dégrade. Toujours. Chaque colonie finit par retomber, et il ne reste d'elle qu'une poignée d'antimatière arrachée à sa propre chute — de quoi bâtir la suivante un peu plus haut, un peu plus vite.</p>"+
+       "<p>C'est de là que vient le nom : <b>une colonie orbitale n'est jamais finie, elle est seulement en train de tomber moins vite que la précédente.</b></p>",
+  tu1_t:"Colonie Orbitale",
+  tu2_t:"L'astéroïde",
+  tu2_d:"Clique dessus. Chaque clic en arrache du <b>minerai</b>, la seule ressource courante du jeu.<br><br>Au début, cliquer est ta principale source de revenu. Plus tard, tes structures produiront bien davantage — mais un clic vaudra toujours une fraction de ta production, jamais zéro.",
+  tu3_t:"Les structures",
+  tu3_d:"Le minerai achète des <b>structures</b> qui extraient toutes seules, en continu. Chaque exemplaire acheté renchérit le suivant de 15 %.<br><br>La rangée <b>×1 / ×10 / ×100 / MAX</b> en haut de l'onglet achète par lots — elle reste visible pendant que tu fais défiler la liste.",
+  tu4_t:"Améliorations et anomalies",
+  tu4_d:"Les <b>améliorations</b> multiplient ta production : par structure, sur le clic, ou sur tout à la fois.<br><br>Une <b>anomalie</b> apparaît régulièrement à côté de la planète. Attrape-la : elle donne un bonus temporaire, du minerai d'un coup, ou une pluie de clics.",
+  tu5_t:"Le cycle",
+  tu5_d:"Quand la progression ralentit, <b>relance un cycle</b>. Tu perds tout — minerai, structures, améliorations — et tu gagnes de l'<b style=\"color:var(--violet)\">antimatière</b>.<br><br>Chaque unité donne <b>+2 % de production pour toujours</b>, et finance les <b>recherches</b> et les <b>automatisations</b>, qui, elles, ne se perdent jamais.<br><br>Au 6<sup>e</sup> cycle s'ouvrent les <b>défis</b> : six parties spéciales où une règle du jeu est cassée.",
   tab_gen:"Extraction", tab_up:"Améliorations", tab_pr:"Recherche", tab_au:"Automatisation", tab_ch:"Défis", tab_ac:"Succès", tab_st:"Statistiques",
   nav_prev:"Onglets précédents", nav_next:"Onglets suivants",
   manual:"Foreuse manuelle", per_click:"par clic",
@@ -1117,6 +1282,32 @@ en:{
   logo:"◈ Orbital Colony", doc_title:"Orbital Colony — space idle game",
   save:"Save", export:"Export / Import", reset:"Reset",
   lang_title:"Language",
+  menu:"Menu", menu_t:"Menu",
+  wn_t:"What's new",
+  wn_d:"Six <b>challenges</b>, each breaking one rule of the game, unlocked at cycle 6. <b>Clicking</b> finally matters early on. The <b>Foreman</b> buys in batches of 1, 10 or 25.",
+  log_t:"Changelog", log_full:"Full history",
+  log_hint:"The latest versions, in short. The full history lives in the repository.",
+  ab_t:"About",
+  ab_code:"Source code", ab_code_v:"A single file, no dependency",
+  ab_lic:"Licence", ab_lic_v:"GPL 3.0 or later — free to read, modify and redistribute",
+  ab_auth:"Created by", ab_auth_v:"<b>Guilhem</b>, with help from Claude (Anthropic)",
+  ab_patreon:"Support", ab_patreon_v:"The game is free, ad-free and account-free",
+  ab_ver:"Version",
+  tu_skip:"Skip", tu_next:"Next", tu_play:"Play",
+  m_tuto:"Tutorial", m_log:"Changelog", m_about:"About",
+  lore:"<p>You are not building on a world. You are building <b>around</b> one.</p>"+
+       "<p>The colony turns four hundred kilometres above a dead planet, anchored to an asteroid captured into the same orbit. Nothing lands, nothing leaves: everything you build stays suspended there, between the void and the gravity well.</p>"+
+       "<p>And the orbit decays. Always. Every colony falls back in the end, and all that survives is a handful of antimatter torn from its own descent — enough to build the next one a little higher, a little faster.</p>"+
+       "<p>That is where the name comes from: <b>an orbital colony is never finished, it is only falling more slowly than the last one.</b></p>",
+  tu1_t:"Orbital Colony",
+  tu2_t:"The asteroid",
+  tu2_d:"Click it. Every click tears off <b>ore</b>, the game's only running resource.<br><br>Early on, clicking is your main income. Later your structures will produce far more — but a click will always be worth a fraction of your output, never zero.",
+  tu3_t:"Structures",
+  tu3_d:"Ore buys <b>structures</b> that mine on their own, continuously. Each unit bought makes the next one 15 % pricier.<br><br>The <b>×1 / ×10 / ×100 / MAX</b> row at the top of the tab buys in batches — it stays visible while you scroll the list.",
+  tu4_t:"Upgrades and anomalies",
+  tu4_d:"<b>Upgrades</b> multiply your output: per structure, on clicks, or on everything at once.<br><br>An <b>anomaly</b> appears next to the planet from time to time. Catch it: it grants a temporary buff, a lump of ore, or a shower of clicks.",
+  tu5_t:"The cycle",
+  tu5_d:"When progress slows down, <b>start a new cycle</b>. You lose everything — ore, structures, upgrades — and you gain <b style=\"color:var(--violet)\">antimatter</b>.<br><br>Each unit grants <b>+2 % output forever</b>, and funds <b>research</b> and <b>automation</b>, which are never lost.<br><br>At cycle 6 the <b>challenges</b> open: six special runs where one rule of the game is broken.",
   tab_gen:"Mining", tab_up:"Upgrades", tab_pr:"Research", tab_au:"Automation", tab_ch:"Challenges", tab_ac:"Achievements", tab_st:"Statistics",
   nav_prev:"Previous tabs", nav_next:"Next tabs",
   manual:"Manual drill", per_click:"per click",
@@ -1922,7 +2113,8 @@ const NEW=()=>({
   auto:{},autoOff:{},autoPause:{},autoMain:"",autoPart:30,autoGen:"",autoQte:1,autoCyc:50,acyc:0,asonde:0,anomK:{},fastAnom:0,chain:0,
   clicks:0,anoms:0,buffs:[],buy:1,
   started:Date.now(),lastTick:Date.now(),lastSave:Date.now(),
-  nextAnom:Date.now()+45000
+  nextAnom:Date.now()+45000,
+  tuto:0                        // 1 dès que le tutoriel a été vu ou passé
 });
 let S=NEW();
 
@@ -2673,6 +2865,13 @@ function buildSkeleton(){
     cb.appendChild(d); CHNODES.push({c,d});
   });
 
+  /* buildMenu() reconstruit des éléments vides ; majMenu() les remplit. Il faut
+     l'appeler ICI et pas seulement depuis applyI18n() : setLang() fait
+     applyI18n() PUIS buildSkeleton(), donc la traduction précède la
+     reconstruction et les intitulés repartaient vides à chaque changement de
+     langue. */
+  buildMenu(); majMenu();
+
   /* --- Statistiques --- */
   $("#pSt").innerHTML='<div id="stSecs"></div>';
   const sb=$("#stSecs"); STROWS=[];
@@ -2750,6 +2949,7 @@ function applyI18n(){
   });
   $$("[data-i18n-title]").forEach(e=>{const v=t(e.dataset.i18nTitle);if(e.title!==v)e.title=v});
   majLang();
+  if($("#mGrid").children.length)majMenu();   // les fenêtres suivent la langue
 }
 function setLang(l){
   if(!T[l]||l===LANG)return;
@@ -3347,15 +3547,6 @@ function load(){
     return true;
   }catch(e){return false}
 }
-bindAction($("#bSave"),()=>{save();toast(t("t_saved"))});
-bindAction($("#bReset"),()=>{
-  demande(t("reset_t"),t("confirm_reset"),()=>{
-    S=NEW(); save(); render(); toast(t("t_newgame"));
-  });
-});
-bindAction($("#bExport"),()=>{
-  save(); $("#mText").value=readSave()||""; $("#modal").classList.add("on"); $("#mText").select();
-});
 bindAction($("#mClose"),()=>$("#modal").classList.remove("on"));
 bindAction($("#askOk"),()=>askFin(true));
 bindAction($("#askNo"),()=>askFin(false));
@@ -3368,6 +3559,150 @@ bindAction($("#mImport"),()=>{
     $("#modal").classList.remove("on"); toast(t("t_imported"));
   }catch(e){toast(t("bad_code"),"red")}
 });
+/* ---------- menu, changelog, à propos, tutoriel ----------
+   Les liens sortants sont deux constantes : elles sont les seules choses de ce
+   fichier qui pointent hors du jeu, autant qu'elles soient trouvables. */
+const LIEN_CODE="https://github.com/mephissto/orbital-colony";
+const LIEN_PATREON="https://www.patreon.com/cw/mephissto";
+const LIEN_LOG=LIEN_CODE+"/blob/main/CHANGELOG.md";
+const LIEN_LOG_EN=LIEN_CODE+"/blob/main/CHANGELOG.en.md";
+
+/* Extrait du changelog. Le fichier complet fait 37 Ko par langue et le jeu doit
+   rester jouable hors connexion : on embarque les huit dernières versions,
+   résumées en une phrase, et un lien mène au reste. À tenir à jour à chaque
+   livraison — c'est la contrepartie assumée de l'affichage hors ligne. */
+const LOG=[
+ {v:"3.0.0", nm:{fr:"Les défis",en:"Challenges"},
+  d:{fr:"Six défis qui cassent chacun une règle du jeu, avec un objectif calculé sur ton meilleur cycle et une récompense définitive. Le clic vaut enfin quelque chose en début de partie. Le Contremaître achète par lots. Les boutons du haut sont regroupés dans un menu, avec un tutoriel et un « à propos ».",
+     en:"Six challenges, each breaking one rule of the game, with a goal computed from your best cycle and a permanent reward. Clicking is finally worth something early on. The Foreman buys in batches. The top buttons are grouped into one menu, with a tutorial and an about panel."}},
+ {v:"2.35.3", nm:{fr:"Le Contremaître achète, sur deux lignes",en:"The Foreman buys, on two lines"},
+  d:{fr:"Le manque de minerai passe à la ligne au lieu de casser la mise en page sur les écrans étroits.",
+     en:"The missing-ore line wraps instead of breaking the layout on narrow screens."}},
+ {v:"2.35.2", nm:{fr:"Une case pour ne plus être rappelé",en:"A box to stop being asked"},
+  d:{fr:"L'invitation à installer le jeu se refuse définitivement, pastille comprise.",
+     en:"The install prompt can now be refused for good, floating pill included."}},
+ {v:"2.35.0", nm:{fr:"Le jeu propose son installation",en:"The game offers to install itself"},
+  d:{fr:"Sur mobile, une fenêtre explique comment installer le jeu en application, avec les modes d'emploi Android et iOS.",
+     en:"On mobile, a dialog explains how to install the game as an app, with both Android and iOS instructions."}},
+ {v:"2.34.0", nm:{fr:"Contremaître et Ingénieur échangent leur prix",en:"Foreman and Engineer swap prices"},
+  d:{fr:"L'automate le plus utile en premier n'était pas le moins cher.",
+     en:"The automation you want first was not the cheapest one."}},
+ {v:"2.33.0", nm:{fr:"L'antimatière revient à son rythme d'avant",en:"Antimatter back to its former pace"},
+  d:{fr:"Le gain avait dérivé vers le haut au fil des réglages ; il retrouve sa courbe d'origine.",
+     en:"The gain had drifted upwards over successive tweaks; it is back on its original curve."}},
+ {v:"2.32.0", nm:{fr:"Les Bras servo-assistés servent enfin",en:"Servo-assisted arms finally matter"},
+  d:{fr:"Ils multipliaient une base qui ne grandit jamais : douze niveaux payés ne changeaient rien. Ils portent maintenant sur le clic entier.",
+     en:"They multiplied a base that never grows: twelve paid levels changed nothing. They now apply to the whole click."}},
+ {v:"2.31.0", nm:{fr:"Le clic ne dépasse plus la production",en:"A click no longer beats your output"},
+  d:{fr:"Un clic valait jusqu'à quatre secondes de production : les résonateurs sont redescendus.",
+     en:"A click was worth up to four seconds of output: the resonators were brought back down."}},
+];
+
+const MENU=[
+ {id:"save",  ico:"💾", k:"save",    f:()=>{save();toast(t("t_saved"))}},
+ {id:"expo",  ico:"⇅",  k:"export",  f:ouvrirExport},
+ {id:"tuto",  ico:"🎓", k:"m_tuto",  f:()=>tutoOuvre(false)},
+ {id:"log",   ico:"📜", k:"m_log",   f:()=>ouvre("#chlog")},
+ {id:"about", ico:"ℹ️", k:"m_about", f:()=>ouvre("#about")},
+ {id:"reset", ico:"♻️", k:"reset",   danger:true, f:()=>{
+    ferme("#menu");
+    demande(t("reset_t"),t("confirm_reset"),()=>{S=NEW();S.tuto=1;save();render();toast(t("t_newgame"))});
+ }},
+];
+const ouvre=sel=>$(sel).classList.add("on");
+const ferme=sel=>$(sel).classList.remove("on");
+function ouvrirExport(){
+  save(); $("#mText").value=readSave()||"";
+  ouvre("#modal"); $("#mText").select();
+}
+function buildMenu(){
+  const g=$("#mGrid"); g.innerHTML="";
+  MENU.forEach(m=>{
+    const b=document.createElement("button");
+    b.className="mitem"+(m.danger?" danger":""); b.type="button";
+    b.innerHTML='<span class="mi">'+m.ico+'</span><span class="ml"></span>';
+    b.ql=b.querySelector(".ml"); b._k=m.k;
+    bindAction(b,m.f); g.appendChild(b);
+  });
+  const l=$("#logList"); l.innerHTML="";
+  LOG.forEach(x=>{
+    const d=document.createElement("div"); d.className="logv";
+    d.innerHTML='<div class="logvh"><span class="logvn">'+x.v+'</span>'+
+                '<span class="logvt"></span></div><div class="logvd"></div>';
+    d.qt=d.querySelector(".logvt"); d.qd=d.querySelector(".logvd"); d._x=x;
+    l.appendChild(d);
+  });
+  const a=$("#abList"); a.innerHTML="";
+  const lignes=[
+   {ico:"🛠️", k:"ab_code",    v:"ab_code_v",    href:LIEN_CODE},
+   {ico:"💜", k:"ab_patreon", v:"ab_patreon_v", href:LIEN_PATREON},
+   {ico:"✍️", k:"ab_auth",    v:"ab_auth_v"},
+   {ico:"⚖️", k:"ab_lic",     v:"ab_lic_v",     href:LIEN_CODE+"/blob/main/LICENSE"},
+   {ico:"🔖", k:"ab_ver",     ver:true},
+  ];
+  lignes.forEach(x=>{
+    const e=document.createElement(x.href?"a":"div");
+    e.className="abrow";
+    if(x.href){e.href=x.href;e.target="_blank";e.rel="noopener noreferrer"}
+    e.innerHTML='<span class="ai">'+x.ico+'</span><span><span class="ak"></span>'+
+                '<span class="av"></span></span>';
+    e.qv=e.querySelector(".av"); e.qk=e.querySelector(".ak"); e._x=x; a.appendChild(e);
+  });
+}
+/* Les textes des trois fenêtres suivent la langue : ils sont remplis au moment
+   où on les ouvre plutôt qu'à chaque image — rien n'y bouge autrement. */
+function majMenu(){
+  txt($("#wnVer"),"v"+VERSION);
+  $$("#mGrid .mitem").forEach(b=>txt(b.ql,t(b._k)));
+  $$("#logList .logv").forEach(d=>{txt(d.qt,tr(d._x.nm));txt(d.qd,tr(d._x.d))});
+  $("#logFull").href=(LANG==="fr")?LIEN_LOG:LIEN_LOG_EN;
+  $$("#abList .abrow").forEach(e=>{
+    txt(e.qk,t(e._x.k));
+    if(e._x.ver)txt(e.qv,"v"+VERSION+(estDev()?" — DEV":""));
+    else html(e.qv,t(e._x.v));
+  });
+}
+
+/* ---------- tutoriel ----------
+   Cinq écrans. Le premier pose le décor — il donne un sens à ce qu'on fait
+   avant d'expliquer comment on le fait. */
+const TUTO=[
+ {ico:"🛰️", t:"tu1_t", lore:true},
+ {ico:"⛏️", t:"tu2_t", d:"tu2_d"},
+ {ico:"🏗️", t:"tu3_t", d:"tu3_d"},
+ {ico:"⚡",  t:"tu4_t", d:"tu4_d"},
+ {ico:"♻️", t:"tu5_t", d:"tu5_d"},
+];
+let tuI=0, tuPremier=false;
+function tutoOuvre(premier){
+  tuPremier=!!premier; tuI=0; majTuto(); ouvre("#tuto");
+}
+function majTuto(){
+  const e=TUTO[tuI];
+  txt($("#tuIco"),e.ico); txt($("#tuTitre"),t(e.t));
+  html($("#tuTxt"),e.lore?'<div class="lore">'+t("lore")+'</div>':t(e.d));
+  const d=$("#tuDots"); 
+  if(d.children.length!==TUTO.length){
+    d.innerHTML=""; TUTO.forEach(()=>{const i=document.createElement("i");i.className="tudot";d.appendChild(i)});
+  }
+  [...d.children].forEach((x,i)=>cls(x,"on",i===tuI));
+  txt($("#tuNext"),t(tuI===TUTO.length-1?"tu_play":"tu_next"));
+  show($("#tuSkip"),tuI<TUTO.length-1);
+}
+function tutoFerme(){
+  ferme("#tuto");
+  S.tuto=1; save();
+  // L'invitation à installer prend le relais, mais seulement au tout premier
+  // lancement : deux fenêtres empilées d'entrée, c'est une de trop.
+  if(tuPremier){ tuPremier=false; setTimeout(majPwa,500); }
+}
+bindAction($("#bMenu"),()=>{majMenu();ouvre("#menu")});
+bindAction($("#menuClose"),()=>ferme("#menu"));
+bindAction($("#logClose"),()=>ferme("#chlog"));
+bindAction($("#abClose"),()=>ferme("#about"));
+bindAction($("#tuSkip"),tutoFerme);
+bindAction($("#tuNext"),()=>{ if(tuI>=TUTO.length-1)return tutoFerme(); tuI++; majTuto() });
+
 /* ---------- invitation à installer la PWA ----------
    Cible : un téléphone ou une tablette qui joue dans le navigateur. On écarte
    donc les ordinateurs (pointer:fine) et tout ce qui tourne déjà en mode
@@ -3430,8 +3765,17 @@ bindAction($("#pwaGo"),()=>{
   p.prompt();
   p.userChoice.then(r=>{ if(r&&r.outcome==="accepted")pwaEcrit("ok"); else pwaFerme() });
 });
-// on laisse la première image se peindre : l'invitation ne doit pas précéder le jeu
-setTimeout(majPwa,1800);
+/* Premier lancement : le tutoriel d'abord, l'invitation à installer ensuite —
+   c'est tutoFerme() qui la déclenche. Une partie déjà commencée (importée, ou
+   d'une version antérieure au tutoriel) ne le redéclenche pas : `tuto` vaut 0
+   dans ces sauvegardes-là, on regarde donc aussi si quelque chose a déjà été
+   joué. On laisse la première image se peindre dans les deux cas : rien ne doit
+   précéder le jeu à l'écran. */
+const partieVierge=()=>!S.tuto&&!S.totalOre&&!S.prestiges&&!S.clicks;
+setTimeout(()=>{
+  if(partieVierge())tutoOuvre(true);
+  else{ if(!S.tuto)S.tuto=1; majPwa(); }
+},1800);
 matchMedia("(display-mode: standalone)").addEventListener?.("change",majPwa);
 
 window.addEventListener("beforeunload",save);
