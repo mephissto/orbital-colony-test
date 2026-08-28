@@ -1,6 +1,6 @@
 # Feuille de route
 
-Version **2.35.3**. Ce document sert de mémoire entre
+Version **3.0.28**. Ce document sert de mémoire entre
 deux sessions : ce qui est décidé, ce qui reste à faire, et pourquoi.
 
 ---
@@ -14,8 +14,8 @@ Le plan d'ensemble pour allonger la durée de vie du jeu comportait quatre
 |---|---|---|
 | 0 | Corriger la linéarité du bonus d'antimatière | ✅ v2.2.0 |
 | 1 | Automatisation | ✅ v2.3.0 → 2.8.0 |
-| 2 | **Défis** | ⬜ à faire — étape suivante |
-| 3 | **Effondrement + astres** | ⬜ à faire |
+| 2 | **Défis** | ✅ v3.0.28 |
+| 3 | **Effondrement + astres** | ⬜ à faire — étape suivante |
 
 Entre-temps : succès rangés en catégories et portés à 71 (v2.9 → 2.11),
 statistiques refaites en tuiles (v2.12.0), licence GPL 3.0 (v2.12.1).
@@ -32,7 +32,7 @@ doivent ouvrir la suite.
 
 ---
 
-## Étape 2 — Les défis
+## Étape 2 — Les défis · ✅ livrée en 3.0.28
 
 **Validé tel quel.** Y compris le point qui avait été corrigé après réflexion :
 **entrer dans un défi encaisse d'abord le cycle en cours** et crédite
@@ -70,7 +70,7 @@ planifier.
 | 💨 Fuite de confinement | production −2 % par tranche de 2 min, plancher 20 % | gain d'antimatière +15 % | 0,015 |
 | 🕳️ Le Vide | l'antimatière ne compte plus dans le multiplicateur | exposant antimatière 1,50 → 1,55 | 0,005 |
 
-### Équilibrage mesuré (3.0.0)
+### Équilibrage mesuré (3.0.28)
 
 Simulation seconde par seconde sur une vraie sauvegarde (cycle n°6, 34
 antimatière, meilleur cycle 285 Qa), anomalies, buffs et automates compris,
@@ -117,8 +117,14 @@ un débutant et pour une colonie avancée.
   à l'entrée. L'idée initiale de valeurs fixes a été abandonnée en cours de
   route : mesuré, deux joueurs à 10 et 24 cycles mettaient 78 min et 1 min pour
   le même minerai.
-- Prévoir des succès de la catégorie Défis, et une tuile de statistiques
-  « Défis réussis ».
+- **Reste à faire (3.1)** : des succès de la catégorie Défis, et une tuile de
+  statistiques « Défis réussis ». Volontairement laissés de côté pour la 3.0.28 —
+  ajouter du contenu non testé le jour de la sortie est la meilleure façon de
+  livrer un bug.
+- **À revoir après du jeu réel** : les six coefficients sont calibrés sur une
+  seule sauvegarde, avec un joueur simulé qui clique 4 fois par seconde sans
+  interruption. Les vrais temps tomberont entre les colonnes « attentif » et
+  « absent » du tableau ci-dessus.
 
 ---
 

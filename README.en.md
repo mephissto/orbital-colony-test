@@ -24,6 +24,7 @@ Free software under [GPL 3.0 or later](#licence).
 - [Upgrades](#upgrades)
 - [Anomalies](#anomalies)
 - [The global multiplier](#the-global-multiplier)
+- [Challenges](#challenges)
 - [Prestige and antimatter](#prestige-and-antimatter)
 - [Research](#research)
 - [Automation](#automation)
@@ -128,7 +129,7 @@ way.
 ## Menu, tutorial and about
 
 Up to 2.35 the top bar carried three buttons — Save, Export / Import, Reset.
-3.0.0 groups them behind **a single Menu button**: at five entries the bar no
+3.0.28 groups them behind **a single Menu button**: at five entries the bar no
 longer fitted on a phone, and Reset sat dangerously next to Save.
 
 The menu holds a what's-new summary (the `wn_d` key, three lines, to be
@@ -164,7 +165,7 @@ Two delicate points:
   only if the tutorial had opened automatically — two stacked dialogs on the
   first launch is one too many.
 - A run already in progress does not trigger it. The `S.tuto` field does not
-  exist in pre-3.0.0 saves and reads 0 there, so `partieVierge()` also looks at
+  exist in pre-3.0.28 saves and reads 0 there, so `partieVierge()` also looks at
   `totalOre`, `prestiges` and `clicks`, and the flag is set immediately so it
   never comes back.
 
@@ -207,7 +208,7 @@ click = ( strike + echo ) × click upgrades × Servo arms × active click buff
   echo   = output/s × max( best resonator owned , base echo 7 % )
 ```
 
-- **Base echo: 7 %** (3.0.0). Without it the echo only exists once the first
+- **Base echo: 7 %** (3.0.28). Without it the echo only exists once the first
   resonator is bought (200,000 ore), and the strike — a base of 1 that never
   grows — drops off immediately: measured on a fresh run, the click stayed at
   1–1.5 while output reached 246/s, i.e. **0.006 s of output per click** after an
@@ -237,7 +238,7 @@ the product **best echo × click multipliers**. With resonator v3 at 40 % (up to
 why the resonators dropped to 2/5/10 % at the same time as the multipliers moved
 to ×1.5–×2.
 
-3.0.0 replays that same trade-off in the other direction: **the multipliers drop
+3.0.28 replays that same trade-off in the other direction: **the multipliers drop
 to ×1.4–×1.7 (×5.71 in full) so the echo can go up** (7 % base, resonators
 9/12/15 %). Click power thus moves towards the **early** game, where it was
 missing, without changing the ceiling at all: 0.15 × 5.71 = **0.86 s of output**,
@@ -260,7 +261,7 @@ research is entitled to see its effect.
 The dip to 0.16 s at the second stage is expected: the first two click upgrades
 land before the first resonator, and that is the one moment where the strike (the
 constant term) has already dropped off while the echo has not yet grown. Before
-3.0.0 that dip was 0.01 s.
+3.0.28 that dip was 0.01 s.
 
 To watch if these values change: the **Mining satellites** click up to 10 times a
 second. At 2.16 s of output per click they therefore yield **21.6× passive
@@ -298,7 +299,7 @@ Negotiation research. The **MAX** button works out how many you can buy at once,
 geometric sums included.
 
 The **×1 / ×10 / ×100 / MAX** row is **sticky**: it stays at the top of the tab
-while you scroll the list (3.0.0). It decides the price and quantity shown on
+while you scroll the list (3.0.28). It decides the price and quantity shown on
 *every* card, and with ten structures you had to scroll back up every time you
 changed your mind. Its anchor point is computed in JS because it differs per
 layout: on desktop `#panels` is the scroller and the row sticks to its top edge
@@ -444,6 +445,59 @@ multiplier = (1 + antimatter × bonus per unit)   ← antimatter
 ```
 
 The full breakdown is available as a tooltip on the Multiplier tile.
+
+---
+
+## Challenges
+
+Six special runs, opened when the header tile reads **"cycle #6 in progress"**.
+Each breaks **one** rule of the game for a whole cycle.
+
+Entering **banks the current cycle first** and credits the antimatter you had
+pending, then resets ore, structures and upgrades. Kept: antimatter, research,
+achievements, automations and the rewards of challenges already cleared. A
+permanent banner shows progress, with a **Leave** button and no penalty. Once
+beaten, a challenge is cleared **for good**.
+
+During a challenge, **only the ♻️ cycle restarter is suspended** — it would wipe
+your progress. Every other automation keeps working. Research cannot be bought;
+the tab is greyed out and says why.
+
+| Challenge | Broken rule | Permanent reward | coef |
+|---|---|---|---|
+| 📵 Radio silence | no anomaly appears | anomalies 20 % more frequent | 0.005 |
+| ⛓️ Hands tied | clicking yields nothing | output +25 % | 0.002 |
+| 📈 Inflation | prices ×1.35 instead of ×1.15 | −8 % on every price | 0.006 |
+| 🏚️ Dwarf colony | only 6 structures, but they produce ×4 | the last 4 produce ×2 | 0.0015 |
+| 💨 Containment leak | output −2 % every 2 min, floor at 20 % | antimatter gain +15 % | 0.015 |
+| 🕳️ The Void | antimatter no longer counts in the multiplier | antimatter exponent 1.50 → 1.55 | 0.005 |
+
+**The goal** is `coef × best cycle × handicap`, in ore mined during the cycle,
+and is **frozen when you enter**. It cannot be a hard-coded number: measured, two
+players at 10 and 24 cycles took 78 min and 1 min for the same amount of ore.
+
+**The handicap** answers "how much does this rule slow down THIS player". It is 1
+for five challenges out of six and is only computed for **The Void**, whose
+penalty depends entirely on progression: a player with 2 antimatter loses ×1.2, a
+player with 500,000 loses ×40,000,000. It is measured on the colony **still
+standing**, right before the reset.
+
+**Balance was measured, not estimated**: second-by-second simulation of a real
+save, anomalies, buffs and automations included, each challenge compared to an
+ordinary cycle aiming at the same goal. Between 2.4 and 3.8 h for an attentive
+player, or 2.5 to 5 times a normal cycle. The full table, and the two challenges
+that were *arithmetically impossible* before that measurement, are in
+[ROADMAP.md](ROADMAP.md).
+
+Two lessons from that work, worth keeping if a challenge is ever added:
+
+- For a **constant-factor** rule (no anomalies, no clicking, higher prices), the
+  coefficient only sets the **duration** — the difficulty ratio does not depend
+  on it.
+- For a rule that **compounds over time** (the leak, the crippled colony), the
+  ratio explodes with the goal: it is tuned by **bounding the rule**, not by the
+  coefficient. Without a floor, the leak bounded the cycle's total ore to
+  `output × 1485 s` — the challenge was not hard, it was over before it began.
 
 ---
 
@@ -912,7 +966,7 @@ game.
 own language ("English", "Français") — the only way for someone who does not
 understand the displayed language to find their own. Your choice is remembered.
 
-A **flag** version existed in 3.0.0-dev.7, as SVGs drawn inside the file rather
+A **flag** version existed in 3.0.28-dev.7, as SVGs drawn inside the file rather
 than emojis (Windows does not render flag emojis: 🇫🇷 shows as "FR" there, and
 elsewhere their look depends on the system font). It was dropped for a
 composition reason, not a technical one: two blocks of vivid colour in an
@@ -930,7 +984,7 @@ one. Changing language does not touch the run in progress.
 The version number is defined at the top of the `<script>`:
 
 ```js
-const VERSION="2.21.1";
+const VERSION="3.0.28";
 ```
 
 It is shown next to the title on desktop, and in a tile of the **Statistics** tab

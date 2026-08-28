@@ -90,7 +90,7 @@ header{
 .logo{font-weight:700;letter-spacing:.14em;font-size:13px;color:var(--cyan);text-transform:uppercase;
   text-shadow:0 0 10px rgba(79,216,255,.3)}
 .spacer{flex:1}
-/* La version reste affichée à toutes les largeurs depuis la 3.0.0 : les trois
+/* La version reste affichée à toutes les largeurs depuis la 3.0.28 : les trois
    boutons de droite ont laissé place à une seule roue crantée, il y a de la
    place. flex:none pour qu'elle ne se comprime jamais — c'est le nom du jeu qui
    se tronque en « ◈ ORBI… », lui a des points de suspension pour ça. */
@@ -180,7 +180,7 @@ html.dev .devtag{display:inline-block}
 }
 /* Sélecteur de langue — menu déroulant. Fermé : le code de la langue (EN / FR).
    Ouvert : le code ET le nom, écrit dans cette langue.
-   Une version à drapeaux a existé en 3.0.0-dev.7 : SVG dessinés à la main, pour
+   Une version à drapeaux a existé en 3.0.28-dev.7 : SVG dessinés à la main, pour
    éviter les emojis drapeaux (absents sur Windows, où 🇫🇷 s'affiche « FR », et
    au dessin variable ailleurs). Abandonnée quand même — deux drapeaux en
    couleurs pleines dans une barre par ailleurs monochrome tiraient l'œil bien
@@ -1062,7 +1062,7 @@ a.abrow:hover .aext{color:var(--cyan)}
 </div></div>
 
 <!-- Menu principal : les trois boutons de la barre d'outils (Sauvegarder,
-     Export/Import, Reset) y ont été regroupés en 3.0.0, avec l'aide et « à
+     Export/Import, Reset) y ont été regroupés en 3.0.28, avec l'aide et « à
      propos ». Une barre à cinq boutons ne tenait plus sur téléphone, et Reset
      y voisinait dangereusement avec Sauvegarder. -->
 <div id="menu"><div class="mbox menubox">
@@ -1137,10 +1137,10 @@ a.abrow:hover .aext{color:var(--cyan)}
      MAJEUR  refonte visible ou changement de règles du jeu
      MINEUR  nouvelle fonctionnalité, nouveau contenu, réglage d'équilibrage
      CORRECT correction de bug, retouche de texte ou de mise en page */
-/* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
-   qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
-   sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.28";
+/* Pendant le développement, un suffixe `-dev.N` s'incrémente à chaque livraison
+   pour qu'on sache toujours quelle version exacte est en ligne. Il disparaît à
+   la sortie : une version publiée n'a jamais de suffixe. */
+const VERSION="3.0.28";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1175,7 +1175,7 @@ fr:{
   menu:"Menu", menu_t:"Menu",
   mg_game:"Ta partie", mg_learn:"Apprendre", mg_info:"Informations",
   wn_t:"Nouveautés", 
-  wn_d:"Six <b>défis</b> qui cassent chacun une règle du jeu, ouverts au cycle n°6. Le <b>clic</b> compte enfin en début de partie. Le <b>Contremaître</b> achète par lots de 1, 10 ou 25.",
+  wn_d:"Six <b>défis</b> qui cassent chacun une règle du jeu, ouverts au cycle n°6. Un <b>tutoriel</b> et un <b>menu</b> unique. Le <b>clic</b> compte enfin en début de partie.",
   log_t:"Changelog", log_full:"Historique complet",
   log_hint:"Les dernières versions, en résumé. L'historique complet est dans le dépôt.",
   ab_t:"À propos",
@@ -1334,7 +1334,7 @@ en:{
   menu:"Menu", menu_t:"Menu",
   mg_game:"Your game", mg_learn:"Learn", mg_info:"Information",
   wn_t:"What's new",
-  wn_d:"Six <b>challenges</b>, each breaking one rule of the game, unlocked on cycle #6. <b>Clicking</b> finally matters early on. The <b>Foreman</b> buys in batches of 1, 10 or 25.",
+  wn_d:"Six <b>challenges</b>, each breaking one rule of the game, unlocked on cycle #6. A <b>tutorial</b> and a single <b>menu</b>. <b>Clicking</b> finally matters early on.",
   log_t:"Changelog", log_full:"Full history",
   log_hint:"The latest versions, in short. The full history lives in the repository.",
   ab_t:"About",
@@ -1570,7 +1570,7 @@ UPS.push(
     La 2.29.0 avait tenté un effet double (×N sur la frappe + points de
     résonance) : correct sur le papier, illisible sur une carte.
     Barème : ×1,5 / ×1,6 / ×1,8 / ×2 (×8,64 au complet) en 2.30.0, abaissé à
-    ×1,4 / ×1,5 / ×1,6 / ×1,7 (×5,71) en 3.0.0. Le plafond du clic est le
+    ×1,4 / ×1,5 / ×1,6 / ×1,7 (×5,71) en 3.0.28. Le plafond du clic est le
     produit « meilleur résonateur × multiplicateurs » : en rendant les
     multiplicateurs moins forts on peut remonter d'autant l'écho de base et les
     résonateurs, ce qui déplace la puissance du clic vers le DÉBUT de partie —
@@ -1584,7 +1584,7 @@ UPS.push(
   nm:{fr:"Condensateur",en:"Capacitor"},ds:{fr:"Clic ×1,6",en:"Click ×1.6"}},
  {id:"c4",ico:"🧲",cost:2e9,  kind:"click",mult:1.7,req:S=>S.clicks>=600,
   nm:{fr:"Champ magnétique",en:"Magnetic field"},ds:{fr:"Clic ×1,7",en:"Click ×1.7"}},
-/* Résonateurs : 3/12/40 % → 2/5/10 % en 2.31.0, puis 9/12/15 % en 3.0.0 en même
+/* Résonateurs : 3/12/40 % → 2/5/10 % en 2.31.0, puis 9/12/15 % en 3.0.28 en même
    temps qu'apparaissait un écho de base de 7 % : ils doivent rester au-dessus
    de lui pour continuer d'apporter quelque chose, et les multiplicateurs de
    clic abaissés laissent la place. À 40 %, le clic valait à lui seul 0,40 s de
@@ -2123,7 +2123,7 @@ const DERN4=GENS.slice(-4).map(g=>g.id);          // récompense de Colonie nain
    franchissable pour l'autre.
    Le plancher évite un objectif nul sur une partie neuve. */
 const CHAL_MIN=1e7;
-/* Coefficients recalés en 3.0.0 sur une partie réelle simulée seconde par
+/* Coefficients recalés en 3.0.28 sur une partie réelle simulée seconde par
    seconde (anomalies, buffs, automates compris) : chacun vise ~3 h pour un
    joueur attentif, soit 2 à 4 fois un cycle ordinaire visant le même objectif.
    Les anciennes valeurs (0,4 à 0,02) donnaient 5 à 13 h à ce joueur-là, et
@@ -2276,7 +2276,7 @@ function perSec(noBuff){
    Il est appliqué DANS l'écho, pas comme plancher sur le résultat : un plancher
    sur la valeur finale masquerait l'effet des améliorations de clic, le défaut
    corrigé en 2.30.0.
-   Barème 3.0.0 : écho de base 7 %, résonateurs 9/12/15 %, multiplicateurs de
+   Barème 3.0.28 : écho de base 7 %, résonateurs 9/12/15 %, multiplicateurs de
    clic abaissés à ×5,71 au total. Le clic vaut ainsi ~0,07 s de production dès
    la première minute au lieu de 0,006 s, et toujours 0,15 × 5,71 = 0,86 s au
    complet — plafond de fin de partie strictement inchangé (2,16 s avec les
@@ -3673,9 +3673,9 @@ const LIEN_LOG_EN=LIEN_CODE+"/blob/main/CHANGELOG.en.md";
    résumées en une phrase, et un lien mène au reste. À tenir à jour à chaque
    livraison — c'est la contrepartie assumée de l'affichage hors ligne. */
 const LOG=[
- {v:"3.0.0", nm:{fr:"Les défis",en:"Challenges"},
-  d:{fr:"Six défis qui cassent chacun une règle du jeu, avec un objectif calculé sur ton meilleur cycle et une récompense définitive. Le clic vaut enfin quelque chose en début de partie. Le Contremaître achète par lots. Les boutons du haut sont regroupés dans un menu, avec un tutoriel et un « à propos ».",
-     en:"Six challenges, each breaking one rule of the game, with a goal computed from your best cycle and a permanent reward. Clicking is finally worth something early on. The Foreman buys in batches. The top buttons are grouped into one menu, with a tutorial and an about panel."}},
+ {v:"3.0.28", nm:{fr:"Les défis",en:"Challenges"},
+  d:{fr:"Six défis qui cassent chacun une règle du jeu, avec un objectif calculé sur ton meilleur cycle et une récompense définitive, équilibrés par simulation d'une vraie partie. Le clic vaut enfin quelque chose en début de partie. Un tutoriel s'ouvre à la première partie, et les boutons du haut sont regroupés derrière une roue crantée.",
+     en:"Six challenges, each breaking one rule of the game, with a goal computed from your best cycle and a permanent reward, balanced by simulating a real save. Clicking is finally worth something early on. A tutorial opens on the first run, and the top buttons are grouped behind a gear."}},
  {v:"2.35.3", nm:{fr:"Le Contremaître achète, sur deux lignes",en:"The Foreman buys, on two lines"},
   d:{fr:"Le manque de minerai passe à la ligne au lieu de casser la mise en page sur les écrans étroits.",
      en:"The missing-ore line wraps instead of breaking the layout on narrow screens."}},

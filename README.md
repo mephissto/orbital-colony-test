@@ -25,6 +25,7 @@ Logiciel libre sous [GPL 3.0 ou ultérieure](#licence).
 - [Les améliorations](#les-améliorations)
 - [Les anomalies](#les-anomalies)
 - [Le multiplicateur global](#le-multiplicateur-global)
+- [Les défis](#les-défis)
 - [Le prestige et l'antimatière](#le-prestige-et-lantimatière)
 - [Les recherches](#les-recherches)
 - [L'automatisation](#lautomatisation)
@@ -131,7 +132,7 @@ relancer un cycle n'est pas une convention de genre, c'est l'orbite qui cède.
 ## Menu, tutoriel et à propos
 
 Jusqu'à la 2.35 la barre du haut portait trois boutons — Sauvegarder,
-Export / Import, Reset. La 3.0.0 les regroupe derrière **un seul bouton Menu** :
+Export / Import, Reset. La 3.0.28 les regroupe derrière **un seul bouton Menu** :
 à cinq entrées la barre ne tenait plus sur téléphone, et Reset y voisinait
 dangereusement avec Sauvegarder.
 
@@ -169,7 +170,7 @@ Deux points délicats :
   `majPwa()` seulement si le tutoriel avait été ouvert automatiquement — deux
   fenêtres empilées au premier lancement, c'est une de trop.
 - Une partie déjà commencée ne le déclenche pas. Le champ `S.tuto` n'existe pas
-  dans les sauvegardes antérieures à la 3.0.0 et y vaut donc 0 : `partieVierge()`
+  dans les sauvegardes antérieures à la 3.0.28 et y vaut donc 0 : `partieVierge()`
   regarde aussi `totalOre`, `prestiges` et `clicks`, et le drapeau est posé
   immédiatement pour ne plus jamais y revenir.
 
@@ -214,7 +215,7 @@ clic = ( frappe + écho ) × améliorations de clic × Bras servo × bonus de cl
   écho   = production/s × max( meilleur résonateur possédé , écho de base 7 % )
 ```
 
-- **Écho de base : 7 %** (3.0.0). Sans lui, l'écho n'existe qu'une fois le
+- **Écho de base : 7 %** (3.0.28). Sans lui, l'écho n'existe qu'une fois le
   premier résonateur acheté (200 000 de minerai) et la frappe, une base de 1 qui
   ne grandit jamais, décroche immédiatement : mesuré sur une partie neuve, le
   clic restait à 1–1,5 pendant que la production atteignait 246/s, soit **0,006 s
@@ -246,7 +247,7 @@ au-dessus de ×2,5 ne pouvait s'y ajouter sans casser la règle. C'est pourquoi 
 résonateurs sont descendus à 2/5/10 % en même temps que les multiplicateurs
 passaient à ×1,5–×2.
 
-La 3.0.0 rejoue ce même arbitrage dans l'autre sens : **les multiplicateurs sont
+La 3.0.28 rejoue ce même arbitrage dans l'autre sens : **les multiplicateurs sont
 abaissés à ×1,4–×1,7 (×5,71 au total) pour pouvoir remonter l'écho** (base 7 %,
 résonateurs 9/12/15 %). La puissance du clic se déplace ainsi vers le **début**
 de partie, là où elle manquait, sans rien changer au plafond : 0,15 × 5,71 =
@@ -269,7 +270,7 @@ antimatière dans une recherche a le droit d'en voir l'effet.
 Le creux à 0,16 s au deuxième palier est normal : les deux premières
 améliorations de clic arrivent avant le premier résonateur, et c'est le seul
 moment où la frappe (le terme constant) a déjà décroché sans que l'écho ait
-grandi. Avant la 3.0.0 ce creux valait 0,01 s.
+grandi. Avant la 3.0.28 ce creux valait 0,01 s.
 
 À surveiller si ces valeurs bougent : les **Satellites d'extraction** cliquent
 jusqu'à 10 fois par seconde. À 2,16 s de production par clic, ils rapportent donc
@@ -308,7 +309,7 @@ par la recherche Négociation. Le bouton **MAX** calcule combien tu peux en
 acheter d'un coup, sommes géométriques comprises.
 
 La rangée **×1 / ×10 / ×100 / MAX** est **collante** : elle reste en haut de
-l'onglet pendant qu'on fait défiler la liste (3.0.0). C'est elle qui décide du
+l'onglet pendant qu'on fait défiler la liste (3.0.28). C'est elle qui décide du
 prix et de la quantité affichés sur *toutes* les cartes, et avec dix structures
 il fallait remonter la chercher à chaque changement d'avis. Son point
 d'accrochage est calculé en JS parce qu'il n'est pas le même selon la mise en
@@ -459,6 +460,59 @@ multiplicateur = (1 + antimatière × bonus par unité)   ← antimatière
 ```
 
 Le détail complet est disponible en infobulle sur la tuile Multiplicateur.
+
+---
+
+## Les défis
+
+Six parties spéciales, ouvertes quand la tuile de l'en-tête affiche **« cycle
+n°6 en cours »**. Chacune casse **une** règle du jeu pour un cycle entier.
+
+Entrer **encaisse d'abord le cycle en cours** et crédite l'antimatière en
+attente, puis remet à zéro minerai, structures et améliorations. Sont conservés :
+antimatière, recherches, succès, automates et les récompenses des défis déjà
+réussis. Un bandeau permanent montre la progression, avec un bouton **Quitter**
+sans pénalité. Réussi une fois, un défi est validé **définitivement**.
+
+Pendant un défi, **seul le relanceur de cycle ♻️ est suspendu** — il effacerait la
+progression. Tous les autres automates travaillent. Les recherches ne s'achètent
+pas ; l'onglet est grisé et dit pourquoi.
+
+| Défi | Règle cassée | Récompense permanente | coef |
+|---|---|---|---|
+| 📵 Silence radio | aucune anomalie n'apparaît | anomalies +20 % plus fréquentes | 0,005 |
+| ⛓️ Mains liées | le clic ne rapporte rien | production +25 % | 0,002 |
+| 📈 Inflation | prix en ×1,35 au lieu de ×1,15 | −8 % sur tous les prix | 0,006 |
+| 🏚️ Colonie naine | 6 structures seulement, mais elles produisent ×4 | les 4 dernières produisent ×2 | 0,0015 |
+| 💨 Fuite de confinement | production −2 % par tranche de 2 min, plancher 20 % | gain d'antimatière +15 % | 0,015 |
+| 🕳️ Le Vide | l'antimatière ne compte plus dans le multiplicateur | exposant antimatière 1,50 → 1,55 | 0,005 |
+
+**L'objectif** vaut `coef × meilleur cycle × handicap`, en minerai extrait sur le
+cycle, et se **fige à l'entrée**. Il ne peut pas être un nombre en dur : mesuré,
+deux joueurs à 10 et 24 cycles mettaient 78 min et 1 min pour le même minerai.
+
+**Le handicap** répond à « de combien cette règle ralentit CE joueur ». Il vaut 1
+pour cinq défis sur six et n'est calculé que pour **Le Vide**, dont la pénalité
+dépend entièrement de l'avancement : un joueur à 2 antimatière y perd ×1,2, un
+joueur à 500 000 en perd ×40 000 000. Il se mesure sur la colonie **encore en
+place**, juste avant la remise à zéro.
+
+**L'équilibrage a été mesuré, pas estimé** : simulation seconde par seconde d'une
+vraie sauvegarde, anomalies, bonus et automates compris, chaque défi comparé à un
+cycle ordinaire visant le même objectif. Entre 2,4 et 3,8 h pour un joueur
+attentif, soit 2,5 à 5 fois un cycle normal. Le tableau complet et les deux
+défis qui étaient *arithmétiquement impossibles* avant cette mesure sont dans
+[ROADMAP.md](ROADMAP.md).
+
+Deux leçons de ce travail, à garder si on ajoute un défi :
+
+- Pour une règle à **facteur constant** (plus d'anomalies, plus de clic, prix
+  majorés), le coefficient ne règle que la **durée** — le rapport de difficulté
+  n'en dépend pas.
+- Pour une règle qui **compose dans le temps** (la fuite, la colonie amputée), le
+  rapport explose avec l'objectif : elle se règle en **bornant la règle**, pas au
+  coefficient. Sans plancher, la fuite bornait le minerai total du cycle à
+  `production × 1485 s` — le défi n'était pas dur, il était fini d'avance.
 
 ---
 
@@ -954,7 +1008,7 @@ propre langue (« English », « Français ») — c'est la seule façon pour qu
 qui ne comprend pas la langue affichée de retrouver la sienne. Ton choix est
 mémorisé.
 
-Une version à **drapeaux** a existé en 3.0.0-dev.7, en SVG dessinés dans le
+Une version à **drapeaux** a existé en 3.0.28-dev.7, en SVG dessinés dans le
 fichier plutôt qu'en emojis (Windows ne rend pas les emojis drapeaux : 🇫🇷 s'y
 affiche « FR », et ailleurs leur dessin dépend de la police du système). Elle a
 été abandonnée pour une raison de composition, pas de technique : deux aplats de
@@ -973,7 +1027,7 @@ partie en cours.
 Le numéro de version est défini en haut du `<script>` :
 
 ```js
-const VERSION="2.21.1";
+const VERSION="3.0.28";
 ```
 
 Il s'affiche à côté du titre sur ordinateur, et dans une tuile de l'onglet
