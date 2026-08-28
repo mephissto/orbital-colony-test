@@ -143,6 +143,11 @@ html.dev .devtag{display:inline-block}
   .kpi .sub{font-size:10px}
 }
 .tools{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* Bouton d'icône seule, quelle que soit la largeur : la roue crantée se passe
+   d'étiquette. Elle reste à droite, à la place qu'occupaient les trois boutons
+   qu'elle remplace. */
+.hbtn.hico{padding:6px;width:30px;height:30px;justify-content:center;flex:none}
+@media (max-width:720px){.topbar .hbtn.hico{width:34px;height:34px;padding:7px}}
 .hbtn{
   background:var(--panel-2);border:1px solid var(--line);color:var(--dim);
   padding:6px 11px;border-radius:8px;cursor:pointer;font-size:12px;transition:.15s;
@@ -641,7 +646,14 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 
 /* Grille de boutons du menu : deux colonnes partout — à une seule, la fenêtre
    dépassait la hauteur d'un téléphone et Reset se retrouvait hors écran. */
-.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mgrid{display:flex;flex-direction:column;gap:6px}
+.mgrid>.msec{margin-top:16px}
+.mgrid>.msec:first-child{margin-top:0}
+/* Un trait entre les groupes plutôt qu'un simple écart : à 14 px de gap seul,
+   trois blocs de boutons identiques se lisaient encore comme une seule liste. */
+.mgrp{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.msec{margin:0 0 10px}
+.mgrid>.msec+.mgrp{margin-bottom:4px}
 .mitem{display:flex;align-items:center;gap:10px;text-align:left;
   background:var(--panel-2);border:1px solid var(--line);border-radius:11px;
   color:var(--txt);padding:12px 13px;cursor:pointer;font-size:13px;transition:.15s;
@@ -652,7 +664,9 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 /* Reset : seule action irréversible de la fenêtre, donc seule à être rouge et
    seule à occuper toute la largeur, en dernier. On ne la touche pas par erreur
    en visant le bouton d'à côté. */
-.mitem.danger{grid-column:1/-1;border-color:rgba(255,107,138,.35);color:var(--red)}
+/* Reset garde sa couleur d'alerte mais plus sa pleine largeur : il est de toute
+   façon protégé par une demande de confirmation. */
+.mitem.danger{border-color:rgba(255,107,138,.35);color:var(--red)}
 .mitem.danger:hover{border-color:var(--red);background:rgba(255,107,138,.12);color:#fff}
 
 /* Changelog : la liste défile, les boutons restent visibles en dessous. */
@@ -885,9 +899,9 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
     <div class="spacer"></div>
     <div class="tools">
       <div class="langsel" id="langSel"><button class="langbtn" id="langBtn" aria-haspopup="listbox" aria-expanded="false" data-i18n-title="lang_title"><span class="langcode" id="langFlag"></span><svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="langmenu" id="langMenu" role="listbox"></div></div>
-      <button class="hbtn" id="bMenu" data-i18n-title="menu">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        <span data-i18n="menu">Menu</span></button>
+      <button class="hbtn hico" id="bMenu" data-i18n-title="menu">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.5 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.14 15a1.7 1.7 0 0 0-1.56-1H2.5a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1h.08a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.56 1z"/></svg>
+      </button>
     </div>
   </div>
 </header>
@@ -1026,7 +1040,6 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
      propos ». Une barre à cinq boutons ne tenait plus sur téléphone, et Reset
      y voisinait dangereusement avec Sauvegarder. -->
 <div id="menu"><div class="mbox menubox">
-  <h2 data-i18n="menu_t">Menu</h2>
   <div class="whatsnew">
     <div class="wnh"><span data-i18n="wn_t">Nouveautés</span><span class="wnv" id="wnVer"></span></div>
     <div class="wnd" data-i18n="wn_d" data-i18n-html></div>
@@ -1097,7 +1110,7 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.12";
+const VERSION="3.0.0-dev.16";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1130,6 +1143,7 @@ fr:{
   save:"Sauvegarder", export:"Export / Import", reset:"Reset",
   lang_title:"Langue",
   menu:"Menu", menu_t:"Menu",
+  mg_game:"Ta partie", mg_learn:"Apprendre", mg_info:"Informations",
   wn_t:"Nouveautés", 
   wn_d:"Six <b>défis</b> qui cassent chacun une règle du jeu, ouverts au 6<sup>e</sup> cycle. Le <b>clic</b> compte enfin en début de partie. Le <b>Contremaître</b> achète par lots de 1, 10 ou 25.",
   log_t:"Changelog", log_full:"Historique complet",
@@ -1283,6 +1297,7 @@ en:{
   save:"Save", export:"Export / Import", reset:"Reset",
   lang_title:"Language",
   menu:"Menu", menu_t:"Menu",
+  mg_game:"Your game", mg_learn:"Learn", mg_info:"Information",
   wn_t:"What's new",
   wn_d:"Six <b>challenges</b>, each breaking one rule of the game, unlocked at cycle 6. <b>Clicking</b> finally matters early on. The <b>Foreman</b> buys in batches of 1, 10 or 25.",
   log_t:"Changelog", log_full:"Full history",
@@ -3598,16 +3613,22 @@ const LOG=[
      en:"A click was worth up to four seconds of output: the resonators were brought back down."}},
 ];
 
+/* Trois groupes séparés : ta partie (ce qui la touche), l'apprentissage, puis
+   les informations. Reset ferme le groupe de la partie, seul sur sa ligne et en
+   rouge — on ne le vise pas par erreur en allant vers Sauvegarder. */
+/* Intitulés des trois groupes, dans le style des sections des onglets :
+   icône + titre en petites capitales cyan, souligné. */
+const MGRP=[{g:1,ico:"🎮",k:"mg_game"},{g:2,ico:"💡",k:"mg_learn"},{g:3,ico:"📖",k:"mg_info"}];
 const MENU=[
- {id:"save",  ico:"💾", k:"save",    f:()=>{save();toast(t("t_saved"))}},
- {id:"expo",  ico:"⇅",  k:"export",  f:ouvrirExport},
- {id:"tuto",  ico:"🎓", k:"m_tuto",  f:()=>tutoOuvre(false)},
- {id:"log",   ico:"📜", k:"m_log",   f:()=>ouvre("#chlog")},
- {id:"about", ico:"ℹ️", k:"m_about", f:()=>ouvre("#about")},
- {id:"reset", ico:"♻️", k:"reset",   danger:true, f:()=>{
+ {id:"save",  g:1, ico:"💾", k:"save",    f:()=>{save();toast(t("t_saved"))}},
+ {id:"expo",  g:1, ico:"⇅",  k:"export",  f:ouvrirExport},
+ {id:"reset", g:1, ico:"🗑️", k:"reset",   danger:true, f:()=>{
     ferme("#menu");
     demande(t("reset_t"),t("confirm_reset"),()=>{S=NEW();S.tuto=1;save();render();toast(t("t_newgame"))});
  }},
+ {id:"tuto",  g:2, ico:"🎓", k:"m_tuto",  f:()=>tutoOuvre(false)},
+ {id:"log",   g:3, ico:"📜", k:"m_log",   f:()=>ouvre("#chlog")},
+ {id:"about", g:3, ico:"ℹ️", k:"m_about", f:()=>ouvre("#about")},
 ];
 const ouvre=sel=>$(sel).classList.add("on");
 const ferme=sel=>$(sel).classList.remove("on");
@@ -3617,12 +3638,20 @@ function ouvrirExport(){
 }
 function buildMenu(){
   const g=$("#mGrid"); g.innerHTML="";
+  let grp=null, num=0;
   MENU.forEach(m=>{
+    if(m.g!==num){
+      num=m.g;
+      const h=document.createElement("h3"); h.className="sec msec";
+      h.dataset.g=num; g.appendChild(h);
+      grp=document.createElement("div"); grp.className="mgrp"; g.appendChild(grp);
+    }
     const b=document.createElement("button");
     b.className="mitem"+(m.danger?" danger":""); b.type="button";
+    b.dataset.m=m.id;                      // adressable par identité, pas par rang
     b.innerHTML='<span class="mi">'+m.ico+'</span><span class="ml"></span>';
     b.ql=b.querySelector(".ml"); b._k=m.k;
-    bindAction(b,m.f); g.appendChild(b);
+    bindAction(b,m.f); grp.appendChild(b);
   });
   const l=$("#logList"); l.innerHTML="";
   LOG.forEach(x=>{
@@ -3654,6 +3683,10 @@ function buildMenu(){
 function majMenu(){
   txt($("#wnVer"),"v"+VERSION);
   $$("#mGrid .mitem").forEach(b=>txt(b.ql,t(b._k)));
+  $$("#mGrid .msec").forEach(h=>{
+    const x=MGRP.find(y=>String(y.g)===h.dataset.g);
+    if(x)txt(h,x.ico+" "+t(x.k));
+  });
   $$("#logList .logv").forEach(d=>{txt(d.qt,tr(d._x.nm));txt(d.qd,tr(d._x.d))});
   $("#logFull").href=(LANG==="fr")?LIEN_LOG:LIEN_LOG_EN;
   $$("#abList .abrow").forEach(e=>{
