@@ -93,6 +93,21 @@ header{
 .ver{font-size:10px;color:var(--dim);letter-spacing:.06em;opacity:.75;
   font-variant-numeric:tabular-nums;align-self:center}
 @media (max-width:880px){.ver{display:none}}   /* trop étroit : la version reste dans les Stats */
+/* Bandeau de développement — voir estDev(). Le bandeau passe du bleu au rouge
+   pour qu'on ne confonde jamais l'onglet de dev avec celui de la prod : deux
+   onglets côte à côte, même jeu, même icône, ça arrive vite. La pastille DEV
+   reste visible sur téléphone, contrairement au numéro de version. */
+html.dev header{
+  background:linear-gradient(180deg,rgba(46,12,22,.96),rgba(38,10,20,.72));
+  border-bottom-color:rgba(255,107,138,.42)}
+html.dev .logo{color:var(--red);text-shadow:0 0 10px rgba(255,107,138,.32)}
+/* En PREMIER dans la barre, avant le logo : sur téléphone le logo est tronqué
+   avec des points de suspension quand la place manque, et tout ce qui le suit
+   peut disparaître. flex:none pour qu'elle ne se comprime jamais elle-même. */
+.devtag{display:none;font-size:9.5px;font-weight:700;letter-spacing:.12em;
+  padding:3px 7px;border-radius:6px;align-self:center;flex:none;
+  color:#2a0710;background:var(--red)}
+html.dev .devtag{display:inline-block}
 
 /* ---------- TUILES DE STATS (colonne de gauche) ---------- */
 .kpis{display:grid;grid-template-columns:1fr;gap:8px;width:100%}
@@ -773,6 +788,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 <div id="app">
 <header>
   <div class="topbar">
+    <span class="devtag" id="devTag">DEV</span>
     <div class="logo" data-i18n="logo">◈ Orbital Colony</div>
     <span class="ver" id="verTag"></span>
     <div class="spacer"></div>
@@ -944,7 +960,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.8";
+const VERSION="3.0.0-dev.10";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -2711,9 +2727,18 @@ function majLang(){
     cls(b,"on",on); b.setAttribute("aria-selected",on?"true":"false");
   });
 }
+/* Version de développement : reconnue au domaine, pas au numéro de version —
+   c'est l'adresse qui dit où l'on est. dev.orbital-colony.app est en dev,
+   orbital-colony.app ne l'est pas. Un fichier ouvert en local (hostname vide)
+   compte aussi : c'est du test, pas la prod. */
+const estDev=()=>{
+  const h=(location.hostname||"").toLowerCase();
+  return h===""||h.indexOf("dev.")===0;
+};
 function applyI18n(){
-  document.title=t("doc_title");
+  document.title=(estDev()?"DEV · ":"")+t("doc_title");
   txt($("#verTag"),"v"+VERSION);
+  cls(document.documentElement,"dev",estDev());
   document.documentElement.lang=LANG;
   const court=matchMedia("(max-width:560px)").matches;
   $$("[data-i18n]").forEach(e=>{
