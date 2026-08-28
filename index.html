@@ -90,9 +90,13 @@ header{
 .logo{font-weight:700;letter-spacing:.14em;font-size:13px;color:var(--cyan);text-transform:uppercase;
   text-shadow:0 0 10px rgba(79,216,255,.3)}
 .spacer{flex:1}
+/* La version reste affichée à toutes les largeurs depuis la 3.0.0 : les trois
+   boutons de droite ont laissé place à une seule roue crantée, il y a de la
+   place. flex:none pour qu'elle ne se comprime jamais — c'est le nom du jeu qui
+   se tronque en « ◈ ORBI… », lui a des points de suspension pour ça. */
 .ver{font-size:10px;color:var(--dim);letter-spacing:.06em;opacity:.75;
-  font-variant-numeric:tabular-nums;align-self:center}
-@media (max-width:880px){.ver{display:none}}   /* trop étroit : la version reste dans les Stats */
+  font-variant-numeric:tabular-nums;align-self:center;flex:none;white-space:nowrap}
+@media (max-width:720px){.ver{font-size:9.5px;letter-spacing:.03em}}
 /* Bandeau de développement — voir estDev(). Le bandeau passe du bleu au rouge
    pour qu'on ne confonde jamais l'onglet de dev avec celui de la prod : deux
    onglets côte à côte, même jeu, même icône, ça arrive vite. La pastille DEV
@@ -693,9 +697,14 @@ a.hbtn{text-decoration:none}
   color:var(--txt);text-decoration:none;font-size:12.5px;transition:.15s}
 a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
 .abrow .ai{font-size:18px;line-height:1;flex:none}
-.abrow .ak{color:var(--dim);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
-.abrow .av{color:var(--txt)}
-.abrow .av b{color:var(--cyan);font-weight:600}
+.abrow .av{color:var(--txt);min-width:0}
+/* Flèche sortante : elle dit, sans un mot et dans les deux langues, que la ligne
+   quitte le jeu pour un site externe. Seules les lignes qui sont des liens en
+   portent une. */
+.abrow .aext{margin-left:auto;flex:none;width:14px;height:14px;fill:none;
+  stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;
+  color:var(--dim);transition:.15s}
+a.abrow:hover .aext{color:var(--cyan)}
 
 /* Tutoriel : un écran à la fois, hauteur figée pour que les boutons ne sautent
    pas d'un écran à l'autre. */
@@ -704,7 +713,17 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
 .tutxt b{color:var(--cyan)}
 .tutxt .lore{border-left-color:var(--violet);margin-bottom:0;font-size:12.5px}
 .tutxt .lore b{color:var(--violet)}
-.tudots{display:flex;gap:6px;justify-content:center;margin-top:14px}
+/* Navigation du tutoriel : une flèche de chaque côté des points. Le bouton du
+   bas ne sert plus qu'à fermer — avancer et reculer se font ici, ou au doigt. */
+.tunav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px}
+.tuarr{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
+  width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--txt);transition:.15s;padding:0}
+.tuarr svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round}
+.tuarr:hover{border-color:var(--cyan);color:var(--cyan)}
+.tuarr[disabled]{opacity:.3;cursor:default;border-color:var(--line);color:var(--dim)}
+.tudots{display:flex;gap:6px;justify-content:center}
 .tudot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.2s}
 .tudot.on{background:var(--cyan);transform:scale(1.25)}
 @media (max-width:640px){
@@ -1065,7 +1084,6 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
 
 <div id="about"><div class="mbox aboutbox">
   <h2 data-i18n="ab_t">À propos</h2>
-  <div class="lore" id="abLore" data-i18n="lore" data-i18n-html></div>
   <div class="ablist" id="abList"></div>
   <div class="mrow">
     <button class="hbtn prim" id="abClose" data-i18n="m_close">Fermer</button>
@@ -1079,10 +1097,15 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
   <div class="tuico" id="tuIco"></div>
   <h2 id="tuTitre"></h2>
   <div class="tutxt" id="tuTxt"></div>
-  <div class="tudots" id="tuDots"></div>
+  <div class="tunav">
+    <button class="tuarr" id="tuPrev" data-i18n-title="tu_prev" type="button">
+      <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+    <div class="tudots" id="tuDots"></div>
+    <button class="tuarr" id="tuNext" data-i18n-title="tu_next" type="button">
+      <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
   <div class="mrow">
-    <button class="hbtn" id="tuSkip" data-i18n="tu_skip">Passer</button>
-    <button class="hbtn prim" id="tuNext" data-i18n="tu_next">Suivant</button>
+    <button class="hbtn prim" id="tuClose" data-i18n="m_close">Fermer</button>
   </div>
 </div></div>
 
@@ -1110,7 +1133,7 @@ a.abrow:hover{border-color:var(--cyan);background:rgba(79,216,255,.1)}
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.16";
+const VERSION="3.0.0-dev.18";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1149,12 +1172,11 @@ fr:{
   log_t:"Changelog", log_full:"Historique complet",
   log_hint:"Les dernières versions, en résumé. L'historique complet est dans le dépôt.",
   ab_t:"À propos",
-  ab_code:"Code source", ab_code_v:"Fichier unique, sans dépendance",
-  ab_lic:"Licence", ab_lic_v:"GPL 3.0 ou ultérieure — libre de le lire, le modifier, le redistribuer",
-  ab_auth:"Créé par", ab_auth_v:"<b>Guilhem</b>, avec l'aide de Claude (Anthropic)",
-  ab_patreon:"Soutenir", ab_patreon_v:"Le jeu est gratuit, sans publicité et sans compte",
-  ab_ver:"Version",
-  tu_skip:"Passer", tu_next:"Suivant", tu_play:"Jouer",
+  ab_code:"Code source",
+  ab_lic:"GPL 3.0 ou ultérieure",
+  ab_auth:"Créé par mephissto avec l'aide de Claude",
+  ab_patreon:"Soutenir",
+  tu_prev:"Écran précédent", tu_next:"Écran suivant",
   m_tuto:"Tutoriel", m_log:"Changelog", m_about:"À propos",
   /* Le lore justifie le nom du jeu ET la boucle de prestige : une colonie qui
      retombe, et dont la chute finance la suivante. */
@@ -1303,12 +1325,11 @@ en:{
   log_t:"Changelog", log_full:"Full history",
   log_hint:"The latest versions, in short. The full history lives in the repository.",
   ab_t:"About",
-  ab_code:"Source code", ab_code_v:"A single file, no dependency",
-  ab_lic:"Licence", ab_lic_v:"GPL 3.0 or later — free to read, modify and redistribute",
-  ab_auth:"Created by", ab_auth_v:"<b>Guilhem</b>, with help from Claude (Anthropic)",
-  ab_patreon:"Support", ab_patreon_v:"The game is free, ad-free and account-free",
-  ab_ver:"Version",
-  tu_skip:"Skip", tu_next:"Next", tu_play:"Play",
+  ab_code:"Source code",
+  ab_lic:"GPL 3.0 or later",
+  ab_auth:"Created by mephissto with help from Claude",
+  ab_patreon:"Support",
+  tu_prev:"Previous screen", tu_next:"Next screen",
   m_tuto:"Tutorial", m_log:"Changelog", m_about:"About",
   lore:"<p>You are not building on a world. You are building <b>around</b> one.</p>"+
        "<p>The colony turns four hundred kilometres above a dead planet, anchored to an asteroid captured into the same orbit. Nothing lands, nothing leaves: everything you build stays suspended there, between the void and the gravity well.</p>"+
@@ -3623,8 +3644,11 @@ const MENU=[
  {id:"save",  g:1, ico:"💾", k:"save",    f:()=>{save();toast(t("t_saved"))}},
  {id:"expo",  g:1, ico:"⇅",  k:"export",  f:ouvrirExport},
  {id:"reset", g:1, ico:"🗑️", k:"reset",   danger:true, f:()=>{
-    ferme("#menu");
-    demande(t("reset_t"),t("confirm_reset"),()=>{S=NEW();S.tuto=1;save();render();toast(t("t_newgame"))});
+    // la confirmation se pose par-dessus le menu, comme les autres fenêtres :
+    // annuler doit ramener là d'où l'on vient
+    demande(t("reset_t"),t("confirm_reset"),()=>{
+      ferme("#menu"); S=NEW(); S.tuto=1; save(); render(); toast(t("t_newgame"));
+    });
  }},
  {id:"tuto",  g:2, ico:"🎓", k:"m_tuto",  f:()=>tutoOuvre(false)},
  {id:"log",   g:3, ico:"📜", k:"m_log",   f:()=>ouvre("#chlog")},
@@ -3662,20 +3686,21 @@ function buildMenu(){
     l.appendChild(d);
   });
   const a=$("#abList"); a.innerHTML="";
+  const FLECHE='<svg class="aext" viewBox="0 0 24 24" aria-hidden="true">'+
+               '<path d="M7 17 17 7M9 7h8v8"/></svg>';
   const lignes=[
-   {ico:"🛠️", k:"ab_code",    v:"ab_code_v",    href:LIEN_CODE},
-   {ico:"💜", k:"ab_patreon", v:"ab_patreon_v", href:LIEN_PATREON},
-   {ico:"✍️", k:"ab_auth",    v:"ab_auth_v"},
-   {ico:"⚖️", k:"ab_lic",     v:"ab_lic_v",     href:LIEN_CODE+"/blob/main/LICENSE"},
-   {ico:"🔖", k:"ab_ver",     ver:true},
+   {ico:"🛠️", v:"ab_code",    href:LIEN_CODE},
+   {ico:"💜", v:"ab_patreon", href:LIEN_PATREON},
+   {ico:"✍️", v:"ab_auth"},
+   {ico:"⚖️", v:"ab_lic",     href:LIEN_CODE+"/blob/main/LICENSE"},
+   {ico:"🔖", ver:true},
   ];
   lignes.forEach(x=>{
     const e=document.createElement(x.href?"a":"div");
     e.className="abrow";
     if(x.href){e.href=x.href;e.target="_blank";e.rel="noopener noreferrer"}
-    e.innerHTML='<span class="ai">'+x.ico+'</span><span><span class="ak"></span>'+
-                '<span class="av"></span></span>';
-    e.qv=e.querySelector(".av"); e.qk=e.querySelector(".ak"); e._x=x; a.appendChild(e);
+    e.innerHTML='<span class="ai">'+x.ico+'</span><span class="av"></span>'+(x.href?FLECHE:"");
+    e.qv=e.querySelector(".av"); e._x=x; a.appendChild(e);
   });
 }
 /* Les textes des trois fenêtres suivent la langue : ils sont remplis au moment
@@ -3690,9 +3715,8 @@ function majMenu(){
   $$("#logList .logv").forEach(d=>{txt(d.qt,tr(d._x.nm));txt(d.qd,tr(d._x.d))});
   $("#logFull").href=(LANG==="fr")?LIEN_LOG:LIEN_LOG_EN;
   $$("#abList .abrow").forEach(e=>{
-    txt(e.qk,t(e._x.k));
     if(e._x.ver)txt(e.qv,"v"+VERSION+(estDev()?" — DEV":""));
-    else html(e.qv,t(e._x.v));
+    else txt(e.qv,t(e._x.v));
   });
 }
 
@@ -3710,6 +3734,10 @@ let tuI=0, tuPremier=false;
 function tutoOuvre(premier){
   tuPremier=!!premier; tuI=0; majTuto(); ouvre("#tuto");
 }
+function tutoVa(d){
+  const n=Math.min(TUTO.length-1,Math.max(0,tuI+d));
+  if(n===tuI)return; tuI=n; majTuto();
+}
 function majTuto(){
   const e=TUTO[tuI];
   txt($("#tuIco"),e.ico); txt($("#tuTitre"),t(e.t));
@@ -3719,8 +3747,8 @@ function majTuto(){
     d.innerHTML=""; TUTO.forEach(()=>{const i=document.createElement("i");i.className="tudot";d.appendChild(i)});
   }
   [...d.children].forEach((x,i)=>cls(x,"on",i===tuI));
-  txt($("#tuNext"),t(tuI===TUTO.length-1?"tu_play":"tu_next"));
-  show($("#tuSkip"),tuI<TUTO.length-1);
+  $("#tuPrev").disabled=(tuI===0);
+  $("#tuNext").disabled=(tuI===TUTO.length-1);
 }
 function tutoFerme(){
   ferme("#tuto");
@@ -3733,8 +3761,39 @@ bindAction($("#bMenu"),()=>{majMenu();ouvre("#menu")});
 bindAction($("#menuClose"),()=>ferme("#menu"));
 bindAction($("#logClose"),()=>ferme("#chlog"));
 bindAction($("#abClose"),()=>ferme("#about"));
-bindAction($("#tuSkip"),tutoFerme);
-bindAction($("#tuNext"),()=>{ if(tuI>=TUTO.length-1)return tutoFerme(); tuI++; majTuto() });
+bindAction($("#tuClose"),tutoFerme);
+bindAction($("#tuPrev"),()=>tutoVa(-1));
+bindAction($("#tuNext"),()=>tutoVa(1));
+/* Glissement du doigt : le même geste que dans n'importe quel diaporama. Seuil
+   à 45 px et trajet plutôt horizontal que vertical, sinon un défilement de la
+   fenêtre (le lore dépasse sur un petit écran) changerait d'écran au passage. */
+(function glisse(){
+  const z=$("#tuto"); let x0=null,y0=null;
+  z.addEventListener("touchstart",e=>{
+    const t0=e.changedTouches[0]; x0=t0.clientX; y0=t0.clientY;
+  },{passive:true});
+  z.addEventListener("touchend",e=>{
+    if(x0===null)return;
+    const t1=e.changedTouches[0], dx=t1.clientX-x0, dy=t1.clientY-y0;
+    x0=null;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5)tutoVa(dx<0?1:-1);
+  },{passive:true});
+})();
+
+/* ---------- fermer une fenêtre en cliquant à côté ----------
+   Le fond sombre est la cible : `e.target===fond` ne se déclenche donc pas
+   quand le clic est parti d'un bouton à l'intérieur. La confirmation (#ask) en
+   est exclue à dessein — on n'annule pas une action irréversible par un clic
+   distrait — et l'invitation à installer garde son propre chemin de fermeture,
+   qui mémorise le refus. */
+[["#menu",()=>ferme("#menu")],
+ ["#chlog",()=>ferme("#chlog")],
+ ["#about",()=>ferme("#about")],
+ ["#modal",()=>ferme("#modal")],
+ ["#tuto",tutoFerme]].forEach(([sel,f])=>{
+  const z=$(sel);
+  z.addEventListener("click",e=>{ if(e.target===z)f() });
+});
 
 /* ---------- invitation à installer la PWA ----------
    Cible : un téléphone ou une tablette qui joue dans le navigateur. On écarte
