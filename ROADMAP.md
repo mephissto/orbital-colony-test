@@ -43,7 +43,10 @@ planifier.
 ### La boucle
 
 - Nouvel onglet **Défis**, visible dès le premier cycle mais **grisé**, avec le
-  décompte des cycles restants ; il s'ouvre au **6e cycle**.
+  décompte des cycles restants ; il s'ouvre quand la tuile de l'en-tête affiche
+  **« cycle n°6 en cours »**, soit après 5 cycles bouclés. `CHAL_CYCLES` est ce
+  numéro affiché, pas un nombre de cycles terminés — le code compte ce que le
+  joueur lit.
 - Six défis, chacun avec son état : verrouillé / disponible / en cours / réussi.
 - Entrer → encaissement du cycle → remise à zéro (minerai, structures,
   améliorations) → la règle cassée s'applique.
