@@ -129,14 +129,13 @@ html.dev .devtag{display:inline-block}
 .kpi .k{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
 .kpi .v{font-size:25px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;
   color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* La ligne d'appoint des tuiles ne se tronque plus : depuis que celle du
-   minerai porte deux chiffres (cycle / total), des points de suspension
-   mangeaient le second sur téléphone. Elle passe à la ligne — les nombres
-   restent insécables pour ne jamais couper « 569Qa » en deux. */
-.kpi .sub{font-size:11px;color:var(--dim);line-height:1.35;overflow-wrap:anywhere}
-.kpi .sub b{white-space:nowrap}
-/* Les deux nombres et leur barre oblique restent solidaires : sinon la ligne se
-   coupait après « 4.20B / », laissant une barre orpheline en fin de ligne. */
+/* Une seule ligne, jamais deux : la tuile grandirait, et les quatre tuiles de
+   l'en-tête doivent garder la même hauteur. Sur téléphone, c'est l'INTITULÉ qui
+   saute (variante courte `sub_total_s`), pas le chiffre — mesuré, « cycle /
+   tot. : 4.20B / 569Qa » demande 135 px pour 104 disponibles à 390 px de large,
+   et 79 px seulement à 320 px. Aucun libellé n'y tient : restent les deux
+   nombres, la tuile étant déjà intitulée « Minerai ». */
+.kpi .sub{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kpi .sub .nb{white-space:nowrap}
 .kpi .sub b{color:var(--txt);font-weight:600}
 /* Une couleur par unité, la même partout dans le jeu :
@@ -1141,7 +1140,7 @@ a.abrow:hover .aext{color:var(--cyan)}
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.22";
+const VERSION="3.0.0-dev.25";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1206,9 +1205,15 @@ fr:{
   manual:"Foreuse manuelle", per_click:"par clic",
   kpi_ore:"Minerai", kpi_rate:"Production", kpi_am:"Antimatière", kpi_mult:"Multiplicateur",
   sub_total:"cycle / total : <span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
+  sub_total_s:"<span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
+  sub_total_t:"minerai du cycle en cours / total extrait depuis le début",
   sub_click:"clic : <b>+{0}</b>",
-  sub_next:"<b>+{0}</b> prêt · cycle n°{1}",
-  sub_cycle:"cycle n°{0} en cours",
+  sub_next:"<b>+{0}</b> prêt · cycle #{1}{2}",
+  sub_next_s:"<b>+{0}</b>{2}",
+  sub_cycle:"cycle #{0}{1}",
+  sub_cycle_s:"#{0}{1}",
+  sub_manque:" · <b>−{0}</b>",
+  sub_am_t:"il manque ce minerai pour gagner une antimatière de plus",
   f_am:"antimatière ×{0}", f_ach:"succès ×{0}", f_tech:"améliorations et recherches ×{0}",
   f_buff:"bonus temporaire ×{0}",
   mult_none:"aucun bonus pour l'instant", mult_simple:"tes bonus cumulés",
@@ -1242,7 +1247,7 @@ fr:{
   locked_ds:"Continue de progresser pour débloquer cette structure.",
   pr_head:"Cycle d'antimatière — tu repars de zéro, tu gardes un bonus permanent",
   pr_btn:"Lancer un nouveau cycle",
-  pr_info:"antimatière au prochain cycle &nbsp;•&nbsp; chaque unité donne <b style=\"color:var(--violet)\">+{0} %</b> de production, le total étant amplifié à la <b style=\"color:var(--violet)\">puissance {3}</b><br>Bonus actuel : <b style=\"color:var(--green)\">×{1}</b> — cycles effectués : {2}",
+  pr_info:"antimatière au prochain cycle &nbsp;•&nbsp; chaque unité donne <b style=\"color:var(--violet)\">+{0} %</b> de production, le total étant amplifié à la <b style=\"color:var(--violet)\">puissance {3}</b><br>Bonus actuel : <b style=\"color:var(--green)\">×{1}</b> — cycle n°{2} en cours",
   pr_note:"Il faut extraire {0} de minerai sur ce cycle pour gagner 1 antimatière — il t'en manque {1}{2}",
   pr_ask_t:"Lancer un nouveau cycle ?",
   pr_lose:"• Tu perds le minerai, les structures et les améliorations du cycle.",
@@ -1357,9 +1362,15 @@ en:{
   manual:"Manual drill", per_click:"per click",
   kpi_ore:"Ore", kpi_rate:"Output", kpi_am:"Antimatter", kpi_mult:"Multiplier",
   sub_total:"cycle / total: <span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
+  sub_total_s:"<span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
+  sub_total_t:"ore mined this cycle / total mined since the start",
   sub_click:"click: <b>+{0}</b>",
-  sub_next:"<b>+{0}</b> ready · cycle #{1}",
-  sub_cycle:"cycle #{0} in progress",
+  sub_next:"<b>+{0}</b> ready · cycle #{1}{2}",
+  sub_next_s:"<b>+{0}</b>{2}",
+  sub_cycle:"cycle #{0}{1}",
+  sub_cycle_s:"#{0}{1}",
+  sub_manque:" · <b>−{0}</b>",
+  sub_am_t:"ore still missing to earn one more antimatter",
   f_am:"antimatter ×{0}", f_ach:"achievements ×{0}", f_tech:"upgrades and research ×{0}",
   f_buff:"temporary boost ×{0}",
   mult_none:"no bonus yet", mult_simple:"your bonuses combined",
@@ -1393,7 +1404,7 @@ en:{
   locked_ds:"Keep progressing to unlock this structure.",
   pr_head:"Antimatter cycle — you start over, you keep a permanent bonus",
   pr_btn:"Start a new cycle",
-  pr_info:"antimatter on the next cycle &nbsp;•&nbsp; each unit grants <b style=\"color:var(--violet)\">+{0} %</b> output, the total raised to the <b style=\"color:var(--violet)\">power {3}</b><br>Current bonus: <b style=\"color:var(--green)\">×{1}</b> — cycles completed: {2}",
+  pr_info:"antimatter on the next cycle &nbsp;•&nbsp; each unit grants <b style=\"color:var(--violet)\">+{0} %</b> output, the total raised to the <b style=\"color:var(--violet)\">power {3}</b><br>Current bonus: <b style=\"color:var(--green)\">×{1}</b> — cycle #{2} in progress",
   pr_note:"You need to mine {0} ore this cycle to earn 1 antimatter — {1} to go{2}",
   pr_ask_t:"Start a new cycle?",
   pr_lose:"• You lose this cycle's ore, structures and upgrades.",
@@ -3120,7 +3131,11 @@ function renderUps(){
 function renderPrestige(){
   const g=amGain();
   txt($("#prGain"),"+"+fmt(g));
-  html($("#prInfo"),t("pr_info",(amBonus()*100).toFixed(1),mfmt(amMult()),S.prestiges,String(amExp())));
+  /* Le NUMÉRO du cycle en cours, comme la tuile de l'en-tête et le seuil des
+     défis — pas le nombre de cycles terminés. Deux façons de compter dans la
+     même interface, c'est exactement ce qui avait rendu le déblocage des défis
+     illisible. */
+  html($("#prInfo"),t("pr_info",(amBonus()*100).toFixed(1),mfmt(amMult()),S.prestiges+1,String(amExp())));
   const note=$("#prNote");
   show(note,g<1);
   if(g<1){
@@ -3320,9 +3335,20 @@ function renderHeader(){
      premier dit où en est le cycle (et donc quand relancer), le second n'est
      qu'un compteur de carrière. Ils vivent dans la même tuile parce qu'ils se
      lisent l'un par rapport à l'autre. */
-  html($("#sOre"),t("sub_total",fmt(S.runOre),fmt(S.totalOre)));
+  html($("#sOre"),tm("sub_total",fmt(S.runOre),fmt(S.totalOre)));
+  $("#sOre").title=t("sub_total_t");   // l'intitulé disparaît sur téléphone
   html($("#sRate"),t("sub_click",fmt(cv)));
-  html($("#sAm"),g>=1?t("sub_next",fmt(g),S.prestiges+1):t("sub_cycle",S.prestiges+1));
+  /* Ce qui manque pour l'antimatière SUIVANTE : c'est le seul chiffre qui dit
+     où en est vraiment le cycle. Le seuil est déjà connu du jeu (amMinerai),
+     on ne fait que le soustraire au minerai déjà extrait. */
+  const manque=Math.max(0,amMinerai(g+1)-S.runOre);
+  const mq=manque>0?t("sub_manque",fmt(manque)):"";
+  /* Variantes courtes sur écran étroit : mesuré, « cycle #5 · −5.67B » demande
+     94 px pour 79 disponibles à 320 px. C'est le mot « cycle » qui saute, et
+     quand de l'antimatière est déjà prête, aussi son numéro — les deux montants
+     comptent plus que lui. */
+  html($("#sAm"),g>=1?tm("sub_next",fmt(g),S.prestiges+1,mq):tm("sub_cycle",S.prestiges+1,mq));
+  $("#sAm").title=t("sub_am_t");
   const full=[];
   if(m.am>1.0001)full.push(t("f_am",fmt(m.am)));
   if(m.ach>1.0001)full.push(t("f_ach",m.ach.toFixed(2)));
