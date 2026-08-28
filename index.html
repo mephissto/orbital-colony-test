@@ -129,7 +129,15 @@ html.dev .devtag{display:inline-block}
 .kpi .k{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
 .kpi .v{font-size:25px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;
   color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi .sub{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* La ligne d'appoint des tuiles ne se tronque plus : depuis que celle du
+   minerai porte deux chiffres (cycle / total), des points de suspension
+   mangeaient le second sur téléphone. Elle passe à la ligne — les nombres
+   restent insécables pour ne jamais couper « 569Qa » en deux. */
+.kpi .sub{font-size:11px;color:var(--dim);line-height:1.35;overflow-wrap:anywhere}
+.kpi .sub b{white-space:nowrap}
+/* Les deux nombres et leur barre oblique restent solidaires : sinon la ligne se
+   coupait après « 4.20B / », laissant une barre orpheline en fin de ligne. */
+.kpi .sub .nb{white-space:nowrap}
 .kpi .sub b{color:var(--txt);font-weight:600}
 /* Une couleur par unité, la même partout dans le jeu :
    minerai = doré, antimatière = violet, production = cyan.
@@ -1133,7 +1141,7 @@ a.abrow:hover .aext{color:var(--cyan)}
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.21";
+const VERSION="3.0.0-dev.22";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -1197,7 +1205,7 @@ fr:{
   nav_prev:"Onglets précédents", nav_next:"Onglets suivants",
   manual:"Foreuse manuelle", per_click:"par clic",
   kpi_ore:"Minerai", kpi_rate:"Production", kpi_am:"Antimatière", kpi_mult:"Multiplicateur",
-  sub_total:"total extrait : <b>{0}</b>",
+  sub_total:"cycle / total : <span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
   sub_click:"clic : <b>+{0}</b>",
   sub_next:"<b>+{0}</b> prêt · cycle n°{1}",
   sub_cycle:"cycle n°{0} en cours",
@@ -1348,7 +1356,7 @@ en:{
   nav_prev:"Previous tabs", nav_next:"Next tabs",
   manual:"Manual drill", per_click:"per click",
   kpi_ore:"Ore", kpi_rate:"Output", kpi_am:"Antimatter", kpi_mult:"Multiplier",
-  sub_total:"total mined: <b>{0}</b>",
+  sub_total:"cycle / total: <span class=\"nb\"><b>{0}</b> / <b>{1}</b></span>",
   sub_click:"click: <b>+{0}</b>",
   sub_next:"<b>+{0}</b> ready · cycle #{1}",
   sub_cycle:"cycle #{0} in progress",
@@ -3308,7 +3316,11 @@ function renderHeader(){
   txt($("#hRate"),fmt(rate)+"/s");
   txt($("#hAm"),fmt(S.am));
   txt($("#hMult"),"×"+fmt(globalMult()));
-  html($("#sOre"),t("sub_total",fmt(S.totalOre)));
+  /* Le minerai du cycle EN COURS d'abord, le total de la partie ensuite : le
+     premier dit où en est le cycle (et donc quand relancer), le second n'est
+     qu'un compteur de carrière. Ils vivent dans la même tuile parce qu'ils se
+     lisent l'un par rapport à l'autre. */
+  html($("#sOre"),t("sub_total",fmt(S.runOre),fmt(S.totalOre)));
   html($("#sRate"),t("sub_click",fmt(cv)));
   html($("#sAm"),g>=1?t("sub_next",fmt(g),S.prestiges+1):t("sub_cycle",S.prestiges+1));
   const full=[];
