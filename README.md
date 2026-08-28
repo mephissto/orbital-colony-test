@@ -8,8 +8,8 @@ serveur, aucune donnée qui sort de ton navigateur.
 
 Logiciel libre sous [GPL 3.0 ou ultérieure](#licence).
 
-**Jouer en ligne :** [orbital-colony.mephissto.fr](https://orbital-colony.mephissto.fr/) ·
-[mephissto.github.io/orbital-colony](https://mephissto.github.io/orbital-colony/)
+**Jouer en ligne :** [orbital-colony.app](https://orbital-colony.app/)
+· version de développement : [dev.orbital-colony.app](https://dev.orbital-colony.app/)
 
 ---
 
@@ -51,7 +51,8 @@ Logiciel libre sous [GPL 3.0 ou ultérieure](#licence).
 | `ROADMAP.md` | ce qui est prévu pour la suite, et pourquoi |
 
 Tous les fichiers vont **à la racine du dépôt**, à plat. L'installation exige
-HTTPS — GitHub Pages et Netlify le fournissent automatiquement.
+HTTPS — Cloudflare Pages, GitHub Pages et Netlify le fournissent
+automatiquement.
 
 **Installer :** Chrome Android → menu ⋮ → « Installer l'application » ; Safari
 iOS → Partager → « Sur l'écran d'accueil » ; sur ordinateur, l'icône

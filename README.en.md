@@ -8,8 +8,8 @@ ever leaving your browser.
 
 Free software under [GPL 3.0 or later](#licence).
 
-**Play online:** [orbital-colony.mephissto.fr](https://orbital-colony.mephissto.fr/) ·
-[mephissto.github.io/orbital-colony](https://mephissto.github.io/orbital-colony/)
+**Play online:** [orbital-colony.app](https://orbital-colony.app/)
+· development build: [dev.orbital-colony.app](https://dev.orbital-colony.app/)
 
 ---
 
@@ -51,7 +51,8 @@ Free software under [GPL 3.0 or later](#licence).
 | `ROADMAP.md` | what is planned next, and why |
 
 All files go **at the root of the repository**, flat. Installation requires
-HTTPS — GitHub Pages and Netlify provide it automatically.
+HTTPS — Cloudflare Pages, GitHub Pages and Netlify all provide it
+automatically.
 
 **Installing:** Chrome Android → ⋮ menu → "Install app"; Safari iOS → Share →
 "Add to Home Screen"; on desktop the install icon appears in the address bar.
