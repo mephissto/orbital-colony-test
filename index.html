@@ -327,7 +327,15 @@ nav.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 
   padding:12px 14px;margin-bottom:9px}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap}
 .setlbl{font-size:13.5px;font-weight:600;color:var(--txt);flex:1 1 200px;min-width:0}
-.setctl{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.setctl{display:flex;align-items:center;gap:8px;flex:0 0 auto;flex-wrap:wrap}
+/* Menu déroulant + trois quantités : ça ne tient pas sur une ligne de
+   téléphone. Le menu prend toute la largeur et les quantités passent dessous,
+   plutôt que de laisser le ×25 sortir de l'écran. */
+@media (max-width:640px){
+  #auGenCtl{flex:1 1 100%;justify-content:flex-start}
+  #auGenCtl .sel{flex:1 1 100%;width:auto}
+  #auGenCtl .qty{flex:1 1 0}
+}
 .setctl .unit{font-size:12px;color:var(--dim)}
 .setnow{font-size:12.5px;color:var(--dim);margin-top:10px;padding-top:9px;
   border-top:1px solid var(--line);line-height:1.5}
@@ -887,7 +895,7 @@ h3.achsec,h3.upsec,h3.chsec{display:flex;align-items:baseline;justify-content:sp
 /* Builds de test : le dernier nombre s'incrémente à chaque livraison, pour
    qu'on sache toujours quelle version exacte est en ligne. Il disparaîtra à la
    sortie — la 3.0.0 finale n'aura pas de suffixe. */
-const VERSION="3.0.0-dev.1";
+const VERSION="3.0.0-dev.4";
 const LICENCE="GPL-3.0-or-later";
 
 /* ---------- utils ---------- */
@@ -972,7 +980,7 @@ fr:{
   au_sw:"Automates actifs", au_pause:"mise en pause par {0}", au_off_by:"coupé — {0} travaille",
   au_sw_hint:"Couper un automate ne rembourse rien et ne fait perdre aucun niveau. Le Contremaître et l'Ingénieur puisent dans le même minerai : un seul des deux peut travailler, et l'interrupteur de l'autre reste verrouillé tant que celui-là tourne.",
   au_gen:"Le Contremaître achète",
-  au_gen_hint:"Il n'achète que cette structure, une par seconde, dès qu'il a le minerai.",
+  au_gen_hint:"Il n'achète que cette structure, par lots de la quantité choisie, une fois par seconde et dès qu'il a le minerai. Le lot est acheté entier ou pas du tout.",
   au_gen_ready:"Prochain achat : <b style=\"color:var(--gold)\">{0} minerai</b>, disponible.",
   au_gen_wait:"Prochain achat : <b style=\"color:var(--gold)\">{0} minerai</b><br>il manque <b>{1}</b>{2}.",
   au_cyc_hint:"Tape le nombre d'antimatière à partir duquel le cycle doit repartir tout seul. Le cycle ne repart jamais pour moins de 10 % de ta réserve, même si tu saisis moins.",
@@ -981,13 +989,13 @@ fr:{
   au_cyc_wait:"il manque <b style=\"color:var(--violet)\">{0}</b>{1}.",
   au_unit_am:"antimatière",
   au_off:"coupé",
-  au_e_clic:"{0} satellite{1} en orbite · {0} clic/s", au_e_contre:"{0} · un achat par seconde",
+  au_e_clic:"{0} satellite{1} en orbite · {0} clic/s", au_e_contre:"{0} · ×{1} par seconde",
   au_e_ing:"achète l'amélioration la moins chère payable", au_e_sonde:"ramasse l'anomalie après {0} s",
   au_e_cycle:"relance à +{0} antimatière",
   t_auto:"{0} — niveau {1}", t_auto_on:"{0} : remis en marche", t_auto_off:"{0} : coupé",
   t_auto_excl:"{0} : remis en marche — {1} est mis en pause",
   t_auto_lock:"Coupe d'abord {0} pour libérer celui-ci.",
-  ch_hint:"Un défi casse <b>une règle du jeu</b> pour tout un cycle, et <b>met tous tes automates en pause</b> : il se relève à la main. Entrer encaisse d'abord le cycle en cours et te crédite l'antimatière en attente. L'objectif se calcule sur <b>ton meilleur cycle</b> et se fige au moment où tu entres. Réussi une fois, un défi est validé <b>définitivement</b> et sa récompense reste active en dehors.",
+  ch_hint:"Un défi casse <b>une règle du jeu</b> pour tout un cycle. Entrer encaisse d'abord le cycle en cours et te crédite l'antimatière en attente. L'objectif se calcule sur <b>ton meilleur cycle</b> et se fige au moment où tu entres. Réussi une fois, un défi est validé <b>définitivement</b> et sa récompense reste active en dehors.",
   ch_head:"Réussis : {0}/{1}",
   ch_goal:"Objectif : {0} minerai sur le cycle",
   ch_prog:"{0} / {1} minerai",
@@ -995,7 +1003,7 @@ fr:{
   ch_quit:"Quitter",
   ch_done_bar:"Objectif atteint — tu peux finir ton cycle tranquillement.",
   ch_ask_t:"Entrer dans « {0} » ?",
-  ch_confirm:"Le cycle en cours est encaissé (<b style=\"color:var(--violet)\">+{0} antimatière</b>), puis la partie repart à zéro avec la règle du défi et tous les automates en pause.",
+  ch_confirm:"Le cycle en cours est encaissé (<b style=\"color:var(--violet)\">+{0} antimatière</b>), puis la partie repart à zéro avec la règle du défi.",
   ch_quit_t:"Quitter le défi ?",
   ch_quit_t_win:"Terminer le défi ?",
   ch_out_am:"• Le cycle est encaissé : <b style=\"color:var(--violet)\">+{0} antimatière</b>.",
@@ -1013,7 +1021,7 @@ fr:{
   au_pause_chal:"en pause pendant le défi",
   t_auto_chal:"Les automates sont en pause : un défi se relève à la main.",
   t_chal_locked:"Indisponible pendant un défi.",
-  ch_lock_au:"⏸️ Pendant un défi, <b>tous les automates sont en pause</b> et rien ne s'achète ici. Tout repart à la sortie, aux mêmes niveaux.",
+  ch_lock_au:"⏸️ Pendant un défi, seul le <b>relanceur de cycle</b> est suspendu : il effacerait ta progression. Tous les autres automates travaillent normalement.",
   ch_lock_pr:"⏸️ Pendant un défi, <b>aucune recherche ne s'achète</b> et le cycle ne peut pas être relancé ici. Tes niveaux déjà payés continuent d'agir normalement.",
   t_autocyc:"Cycle automatique : +{0} antimatière",
   res_hint:"Les recherches se paient en <b style=\"color:var(--violet)\">antimatière</b> et ne sont jamais perdues.",
@@ -1094,7 +1102,7 @@ en:{
   au_sw:"Active automations", au_pause:"paused by {0}", au_off_by:"off — {0} is working",
   au_sw_hint:"Switching one off refunds nothing and loses no level. The Foreman and the Engineer draw on the same ore: only one of them can work, and the other's switch stays locked while it does.",
   au_gen:"The Foreman buys",
-  au_gen_hint:"It only ever buys that one structure, one per second, as soon as it has the ore.",
+  au_gen_hint:"It only ever buys that one structure, in batches of the chosen size, once a second and as soon as it has the ore. A batch is bought whole or not at all.",
   au_gen_ready:"Next purchase: <b style=\"color:var(--gold)\">{0} ore</b>, available.",
   au_gen_wait:"Next purchase: <b style=\"color:var(--gold)\">{0} ore</b><br><b>{1}</b> to go{2}.",
   au_cyc_hint:"Type the amount of antimatter at which the cycle should restart on its own. It never restarts for less than 10 % of your stock, even if you type less.",
@@ -1103,13 +1111,13 @@ en:{
   au_cyc_wait:"<b style=\"color:var(--violet)\">{0}</b> to go{1}.",
   au_unit_am:"antimatter",
   au_off:"off",
-  au_e_clic:"{0} satellite{1} in orbit · {0} click/s", au_e_contre:"{0} · one purchase per second",
+  au_e_clic:"{0} satellite{1} in orbit · {0} click/s", au_e_contre:"{0} · ×{1} per second",
   au_e_ing:"buys the cheapest affordable upgrade", au_e_sonde:"collects the anomaly after {0} s",
   au_e_cycle:"restarts at +{0} antimatter",
   t_auto:"{0} — level {1}", t_auto_on:"{0}: switched back on", t_auto_off:"{0}: switched off",
   t_auto_excl:"{0}: switched back on — {1} is paused",
   t_auto_lock:"Switch {0} off first to free this one.",
-  ch_hint:"A challenge breaks <b>one rule of the game</b> for a whole cycle and <b>pauses every automation</b>: it is meant to be played by hand. Entering banks the current cycle first and credits the antimatter you had pending. The goal is computed from <b>your best cycle</b> and frozen the moment you enter. Once beaten, a challenge is cleared <b>for good</b> and its reward stays active outside of it.",
+  ch_hint:"A challenge breaks <b>one rule of the game</b> for a whole cycle. Entering banks the current cycle first and credits the antimatter you had pending. The goal is computed from <b>your best cycle</b> and frozen the moment you enter. Once beaten, a challenge is cleared <b>for good</b> and its reward stays active outside of it.",
   ch_head:"Cleared: {0}/{1}",
   ch_goal:"Goal: {0} ore in the cycle",
   ch_prog:"{0} / {1} ore",
@@ -1117,7 +1125,7 @@ en:{
   ch_quit:"Leave",
   ch_done_bar:"Goal reached — take your time finishing the cycle.",
   ch_ask_t:"Enter \"{0}\"?",
-  ch_confirm:"The current cycle is banked (<b style=\"color:var(--violet)\">+{0} antimatter</b>), then the run restarts from scratch under the challenge rule, with every automation paused.",
+  ch_confirm:"The current cycle is banked (<b style=\"color:var(--violet)\">+{0} antimatter</b>), then the run restarts from scratch under the challenge rule.",
   ch_quit_t:"Leave the challenge?",
   ch_quit_t_win:"Finish the challenge?",
   ch_out_am:"• The cycle is banked: <b style=\"color:var(--violet)\">+{0} antimatter</b>.",
@@ -1135,7 +1143,7 @@ en:{
   au_pause_chal:"paused during the challenge",
   t_auto_chal:"Automations are paused: a challenge is meant to be played by hand.",
   t_chal_locked:"Not available during a challenge.",
-  ch_lock_au:"⏸️ During a challenge <b>every automation is paused</b> and nothing can be bought here. It all resumes when you leave, at the same levels.",
+  ch_lock_au:"⏸️ During a challenge only the <b>cycle restarter</b> is suspended: it would wipe your progress. Every other automation keeps working.",
   ch_lock_pr:"⏸️ During a challenge <b>no research can be bought</b> and the cycle cannot be restarted here. The levels you already paid for keep working normally.",
   t_autocyc:"Auto cycle: +{0} antimatter",
   res_hint:"Research is paid in <b style=\"color:var(--violet)\">antimatter</b> and is never lost.",
@@ -1244,35 +1252,38 @@ UPS.push(
     avec le résonateur v3 et une grosse production, pour 2 milliards de minerai.
     La 2.29.0 avait tenté un effet double (×N sur la frappe + points de
     résonance) : correct sur le papier, illisible sur une carte.
-    Barème : ×1,5 / ×1,6 / ×1,8 / ×2, soit ×8,64 au complet. Il va de pair avec
-    les résonateurs abaissés à 2/5/10 % — le multiplicateur seul ne peut pas
-    tenir la contrainte « un clic ne doit jamais dépasser la production », car
-    sans résonateur modifié le clic vaut déjà 0,40 s de production et tout
-    facteur au-dessus de ×2,5 la dépasse. Ensemble, le clic plafonne à
-    **0,86 s de production** tout en restant 2,15× plus fort qu'à l'origine, et
-    chaque amélioration garde son ×1,5 à ×2 exact jusqu'en fin de partie. */
- {id:"c1",ico:"🔨",cost:400,  kind:"click",mult:1.5,
-  nm:{fr:"Marteau ionique",en:"Ion hammer"},ds:{fr:"Clic ×1,5",en:"Click ×1.5"}},
- {id:"c2",ico:"🦾",cost:3.5e4,kind:"click",mult:1.6,req:S=>S.clicks>=50,
-  nm:{fr:"Exosquelette",en:"Exoskeleton"},ds:{fr:"Clic ×1,6",en:"Click ×1.6"}},
- {id:"c3",ico:"⚡",cost:5e6,  kind:"click",mult:1.8,req:S=>S.clicks>=250,
-  nm:{fr:"Condensateur",en:"Capacitor"},ds:{fr:"Clic ×1,8",en:"Click ×1.8"}},
- {id:"c4",ico:"🧲",cost:2e9,  kind:"click",mult:2,req:S=>S.clicks>=600,
-  nm:{fr:"Champ magnétique",en:"Magnetic field"},ds:{fr:"Clic ×2",en:"Click ×2"}},
-/* Résonateurs abaissés de 3/12/40 % à 2/5/10 % en 2.31.0. À 40 %, le clic valait
-   à lui seul 0,40 s de production AVANT toute amélioration de clic : plus aucun
-   multiplicateur intéressant ne pouvait s'ajouter sans que le clic dépasse la
-   production — et avec dix Satellites qui cliquent 10 fois par seconde, le clic
-   pesait déjà 80 % du minerai extrait d'un cycle. */
- {id:"r1",ico:"📡",cost:2e5,  kind:"reso",val:.02,
+    Barème : ×1,5 / ×1,6 / ×1,8 / ×2 (×8,64 au complet) en 2.30.0, abaissé à
+    ×1,4 / ×1,5 / ×1,6 / ×1,7 (×5,71) en 3.0.0. Le plafond du clic est le
+    produit « meilleur résonateur × multiplicateurs » : en rendant les
+    multiplicateurs moins forts on peut remonter d'autant l'écho de base et les
+    résonateurs, ce qui déplace la puissance du clic vers le DÉBUT de partie —
+    là où elle manquait — sans rien changer au plafond de fin de partie :
+    0,15 × 5,71 = **0,86 s de production**, exactement comme avant. */
+ {id:"c1",ico:"🔨",cost:400,  kind:"click",mult:1.4,
+  nm:{fr:"Marteau ionique",en:"Ion hammer"},ds:{fr:"Clic ×1,4",en:"Click ×1.4"}},
+ {id:"c2",ico:"🦾",cost:3.5e4,kind:"click",mult:1.5,req:S=>S.clicks>=50,
+  nm:{fr:"Exosquelette",en:"Exoskeleton"},ds:{fr:"Clic ×1,5",en:"Click ×1.5"}},
+ {id:"c3",ico:"⚡",cost:5e6,  kind:"click",mult:1.6,req:S=>S.clicks>=250,
+  nm:{fr:"Condensateur",en:"Capacitor"},ds:{fr:"Clic ×1,6",en:"Click ×1.6"}},
+ {id:"c4",ico:"🧲",cost:2e9,  kind:"click",mult:1.7,req:S=>S.clicks>=600,
+  nm:{fr:"Champ magnétique",en:"Magnetic field"},ds:{fr:"Clic ×1,7",en:"Click ×1.7"}},
+/* Résonateurs : 3/12/40 % → 2/5/10 % en 2.31.0, puis 9/12/15 % en 3.0.0 en même
+   temps qu'apparaissait un écho de base de 7 % : ils doivent rester au-dessus
+   de lui pour continuer d'apporter quelque chose, et les multiplicateurs de
+   clic abaissés laissent la place. À 40 %, le clic valait à lui seul 0,40 s de
+   production AVANT toute amélioration de clic : plus aucun multiplicateur
+   intéressant ne pouvait s'ajouter sans que le clic dépasse la production — et
+   avec dix Satellites qui cliquent 10 fois par seconde, le clic pesait déjà
+   80 % du minerai extrait d'un cycle. */
+ {id:"r1",ico:"📡",cost:2e5,  kind:"reso",val:.09,
   nm:{fr:"Résonateur v1",en:"Resonator v1"},
-  ds:{fr:"Le clic gagne +2 % de ta production/s",en:"Clicks gain +2 % of your output/s"}},
- {id:"r2",ico:"📡",cost:4e8,  kind:"reso",val:.05,req:S=>S.ups.r1,
+  ds:{fr:"Le clic gagne +9 % de ta production/s",en:"Clicks gain +9 % of your output/s"}},
+ {id:"r2",ico:"📡",cost:4e8,  kind:"reso",val:.12,req:S=>S.ups.r1,
   nm:{fr:"Résonateur v2",en:"Resonator v2"},
-  ds:{fr:"Le clic gagne +5 % de ta production/s",en:"Clicks gain +5 % of your output/s"}},
- {id:"r3",ico:"📡",cost:6e11, kind:"reso",val:.10,req:S=>S.ups.r2,
+  ds:{fr:"Le clic gagne +12 % de ta production/s",en:"Clicks gain +12 % of your output/s"}},
+ {id:"r3",ico:"📡",cost:6e11, kind:"reso",val:.15,req:S=>S.ups.r2,
   nm:{fr:"Résonateur v3",en:"Resonator v3"},
-  ds:{fr:"Le clic gagne +10 % de ta production/s",en:"Clicks gain +10 % of your output/s"}}
+  ds:{fr:"Le clic gagne +15 % de ta production/s",en:"Clicks gain +15 % of your output/s"}}
 );
 // globales
 UPS.push(
@@ -1387,14 +1398,12 @@ const alvl=id=>S.auto[id]||0;
      lève tout seul dès que l'autre s'arrête.
    Sans cette séparation, couper l'Ingénieur laissait le Contremaître éteint
    alors qu'il n'avait jamais été coupé par le joueur — juste suspendu. */
-/* Pendant un défi, AUCUN automate ne travaille — mesuré : les satellites seuls
-   divisaient par 4,8 le temps nécessaire à l'objectif, ce qui est un écart de
-   difficulté, pas de confort. Un défi se relève à la main.
-   Le point de coupure est unique et volontairement placé ici : aOn() est lue
-   par la boucle de jeu, l'orbite des satellites, les interrupteurs et les
-   statistiques, donc tout s'aligne sans qu'aucun appelant ait à y penser. */
-const aOn=id=>alvl(id)>0&&!S.autoOff[id]&&!S.autoPause[id]&&!S.chal;
+const aOn=id=>alvl(id)>0&&!S.autoOff[id]&&!S.autoPause[id];
 const CONTRE_S=1;                   // délai entre deux achats du Contremaître
+/* Quantité achetée à chaque passage du Contremaître. En fin de partie, une
+   structure par seconde ne suit plus la production : à ×25 il rattrape. */
+const CONTRE_QTE=[1,10,25];
+const autoQte=()=>CONTRE_QTE.indexOf(S.autoQte)>=0?S.autoQte:1;
 const SONDE_S =2;                   // délai avant ramassage de la Sonde
 /* Structures déjà révélées : c'est la liste que voit le joueur dans Extraction,
    donc la seule qu'on puisse proposer sans rien dévoiler d'avance. */
@@ -1444,10 +1453,9 @@ function verrouille(a){
 }
 /* Texte d'état d'une ligne / d'une carte, partagé pour qu'ils ne divergent pas. */
 function etatTexte(a){
-  // Pendant un défi rien ne tourne — mais un automate que le joueur avait coupé
-  // à la main reste annoncé comme coupé : c'est l'état qu'il retrouvera en
-  // sortant, et le lui cacher serait une surprise à la fin du défi.
-  if(S.chal)return S.autoOff[a.id]?t("au_off"):t("au_pause_chal");
+  // seul le relanceur de cycle s'arrête pendant un défi : il remettrait `runOre`
+  // à zéro et effacerait la progression (voir runAutos)
+  if(a.id==="cycle"&&S.chal&&!S.autoOff[a.id])return t("au_pause_chal");
   const v=verrouille(a);
   if(v)return enPause(a)?txtPause(v):t("au_off_by",tr(v.nmd));
   return aOn(a.id)?autoEtat(a):t("au_off");
@@ -1743,31 +1751,46 @@ const CHALS=[
       en:"No anomaly appears for the whole cycle."},
   rw:{fr:"Anomalies 20 % plus fréquentes, définitivement.",
       en:"Anomalies 20 % more frequent, for good."}},
- {id:"mains",   ico:"⛓️", regle:"noclick", bonus:"prod25", coef:0.2,
+ {id:"mains",   ico:"⛓️", regle:"noclick", bonus:"prod25", coef:0.1,
   nm:{fr:"Mains liées",en:"Hands tied"},
   ds:{fr:"Le clic ne rapporte rien : tout doit venir des structures.",
       en:"Clicking yields nothing: everything must come from structures."},
   rw:{fr:"Production +25 %, définitivement.",
       en:"Output +25 %, for good."}},
- {id:"inflation",ico:"📈", regle:"expensive", bonus:"cheap8", coef:0.1,
+ {id:"inflation",ico:"📈", regle:"expensive", bonus:"cheap8", coef:0.06,
   nm:{fr:"Inflation",en:"Inflation"},
   ds:{fr:"Chaque structure achetée renchérit de 25 % au lieu de 15 %.",
       en:"Each structure bought gets 25 % pricier instead of 15 %."},
   rw:{fr:"−8 % sur tous les prix de structures, définitivement.",
       en:"−8 % on every structure price, for good."}},
- {id:"naine",   ico:"🏚️", regle:"dwarf", bonus:"big2", coef:3e-6,
+ {id:"naine",   ico:"🏚️", regle:"dwarf", bonus:"big2", coef:0.5, hcap:()=>{
+    /* Ce que coûte « seulement 4 structures » dépend de la colonie : pour un
+       débutant qui n'en a que quatre, presque rien ; pour une colonie complète,
+       les six dernières font l'essentiel de la production. On lit le rapport
+       sur la colonie encore en place, juste avant la remise à zéro. */
+    const part=l=>l.reduce((a,g)=>a+(S.gens[g.id]||0)*g.rate*genMult(g.id),0);
+    const tot=part(GENS); if(!(tot>0))return 1;
+    return Math.max(part(GENS.slice(0,NAIN))/tot, 1e-12);
+  },
   nm:{fr:"Colonie naine",en:"Dwarf colony"},
   ds:{fr:"Seules les 4 premières structures existent.",
       en:"Only the first 4 structures exist."},
   rw:{fr:"Les 4 dernières structures produisent ×2, définitivement.",
       en:"The last 4 structures produce ×2, for good."}},
- {id:"fuite",   ico:"💨", regle:"leak", bonus:"am15", coef:0.12,
+ {id:"fuite",   ico:"💨", regle:"leak", bonus:"am15", coef:0.2,
   nm:{fr:"Fuite de confinement",en:"Containment leak"},
   ds:{fr:"La production perd 2 % par tranche de 30 s écoulée depuis l'entrée.",
       en:"Output loses 2 % for every 30 s elapsed since you entered."},
   rw:{fr:"Gain d'antimatière +15 %, définitivement.",
       en:"Antimatter gain +15 %, for good."}},
- {id:"vide",    ico:"🕳️", regle:"void", bonus:"amexp", coef:1e-10,
+ {id:"vide",    ico:"🕳️", regle:"void", bonus:"amexp", coef:0.02, hcap:()=>{
+    /* Le Vide retire l'antimatière et les succès du multiplicateur : le
+       handicap, c'est exactement ce qu'il retire. Un joueur à 2 antimatière
+       perd ×1,2 ; un joueur à 500 000 en perd ×40 000 000. Aucun coefficient
+       fixe ne peut couvrir un tel écart — mesuré, l'objectif se gagnait en
+       0 minute chez l'un et en 1,1 h chez l'autre. */
+    return 1/Math.max(1e-12, amMult()*achMult());
+  },
   nm:{fr:"Le Vide",en:"The Void"},
   ds:{fr:"Ni les succès ni l'antimatière ne comptent dans le multiplicateur.",
       en:"Neither achievements nor antimatter count in the multiplier."},
@@ -1793,8 +1816,14 @@ const CHAL_MIN=1e7;
    pouvoir comparer les deux builds en jouant plutôt qu'en théorisant. */
 const CHAL_NO_RES=false;
 const refCycle=()=>Math.max(S.bestRun||0,CHAL_MIN);
+/* Handicap : de combien CETTE règle ralentit CE joueur. Vaut 1 pour les défis
+   dont la pénalité ne dépend pas de l'avancement (plus de clic, plus
+   d'anomalies, prix majorés) et se calcule pour les deux autres. Sans lui, un
+   coefficient réglé pour un joueur maxé rend le défi trivial pour un débutant,
+   et l'inverse. */
+const chalHcap=c=>c.hcap?c.hcap():1;
 /* Objectif affiché sur une carte, avant d'entrer. */
-const chalBut=c=>Math.ceil(c.coef*refCycle());
+const chalBut=c=>Math.ceil(c.coef*refCycle()*chalHcap(c));
 /* Objectif du défi EN COURS : figé à l'entrée (S.chalBut). S'il fuyait devant
    le joueur au fur et à mesure qu'il bat son record, il serait inatteignable
    par construction. */
@@ -1813,7 +1842,7 @@ const NEW=()=>({
   ore:0,totalOre:0,runOre:0,am:0,amTotal:0,prestiges:0,
   chal:null,chalDone:{},chalStart:0,chalBut:0,bestRun:0,
   gens:{},ups:{},res:{},achs:{},seen:1,
-  auto:{},autoOff:{},autoPause:{},autoMain:"",autoPart:30,autoGen:"",autoCyc:50,acyc:0,asonde:0,anomK:{},fastAnom:0,chain:0,
+  auto:{},autoOff:{},autoPause:{},autoMain:"",autoPart:30,autoGen:"",autoQte:1,autoCyc:50,acyc:0,asonde:0,anomK:{},fastAnom:0,chain:0,
   clicks:0,anoms:0,buffs:[],buy:1,
   started:Date.now(),lastTick:Date.now(),lastSave:Date.now(),
   nextAnom:Date.now()+45000
@@ -1889,6 +1918,21 @@ function perSec(noBuff){
    invisible dès que l'écho domine, c'est-à-dire très vite : c'est ce qui a tué
    successivement les améliorations de clic (corrigé en 2.30.0) puis les Bras
    servo-assistés (corrigé en 2.32.0). */
+/* Écho de base, avant tout résonateur. Sans lui, la frappe (1 × multiplicateur
+   global) ne grandit pas avec la colonie et l'écho n'existe qu'une fois un
+   résonateur acheté : mesuré sur une partie neuve, le clic restait à 1–1,5
+   pendant que la production atteignait 246/s — il passait de 10 s de production
+   à 0,006 s en une heure, et cliquer ne servait visiblement plus à rien.
+   Il est appliqué DANS l'écho, pas comme plancher sur le résultat : un plancher
+   sur la valeur finale masquerait l'effet des améliorations de clic, le défaut
+   corrigé en 2.30.0.
+   Barème 3.0.0 : écho de base 7 %, résonateurs 9/12/15 %, multiplicateurs de
+   clic abaissés à ×5,71 au total. Le clic vaut ainsi ~0,07 s de production dès
+   la première minute au lieu de 0,006 s, et toujours 0,15 × 5,71 = 0,86 s au
+   complet — plafond de fin de partie strictement inchangé (2,16 s avec les
+   douze niveaux de Bras servo-assistés, seule exception admise à la règle
+   « un clic ne doit jamais dépasser une seconde de production »). */
+const ECHO_BASE=0.07;
 function clickVal(auto){
   // Mains liées : le clic ne rapporte rien, y compris celui des satellites —
   // qui sont de toute façon en pause pendant un défi.
@@ -1897,7 +1941,7 @@ function clickVal(auto){
   m*=Math.pow(RES.find(r=>r.id==="servo").clic,lvl("servo"));
   let reso=0; UPS.forEach(u=>{if(u.kind==="reso"&&S.ups[u.id])reso=Math.max(reso,u.val)});
   let bf=1; if(!auto)S.buffs.forEach(b=>{if(b.k==="click")bf*=b.m});
-  return (globalMult()+perSec()*reso)*m*bf;
+  return (globalMult()+perSec()*Math.max(reso,ECHO_BASE))*m*bf;
 }
 const croissance=()=>chalRegle("expensive")?GROWTH_CHAL:GROWTH;
 function costMult(){
@@ -1969,7 +2013,6 @@ function buyUp(u,muet){
   S.ore-=u.cost; S.ups[u.id]=1; if(!muet)toast(t("t_up",tr(u.nm))); render();
 }
 function buyAuto(a){
-  if(S.chal){ toast(t("t_chal_locked")); return }
   const l=alvl(a.id); if(l>=a.max)return;
   const c=autoCost(a,l); if(S.am<c)return;
   S.am-=c; S.auto[a.id]=l+1;
@@ -1982,7 +2025,6 @@ function buyAuto(a){
 }
 function toggleAuto(a){
   if(alvl(a.id)<1)return;
-  if(S.chal){ toast(t("t_auto_chal")); return }   // inerte tant que le défi dure
   const v=verrouille(a);
   if(v){ toast(t("t_auto_lock",tr(v.nmd))); return }   // interrupteur inerte
   const o=autreAuto(a.id);
@@ -2078,8 +2120,13 @@ function entrerChal(c){
   if(S.chal||chalFait(c.id))return;
   demande(t("ch_ask_t",tr(c.nm)),t("ch_confirm",fmt(amGain())),()=>{
     if(S.chal||chalFait(c.id))return;   // relu : l'état a pu changer entre-temps
+    /* Le handicap se mesure sur la colonie ENCORE EN PLACE : finCycle() efface
+       les structures, et Colonie naine a besoin de les voir pour savoir ce que
+       la règle coûte à ce joueur-là. */
+    const h=chalHcap(c);
     finCycle(true);                     // met aussi bestRun à jour
-    S.chal=c.id; S.chalStart=Date.now(); S.chalBut=chalBut(c);
+    S.chal=c.id; S.chalStart=Date.now();
+    S.chalBut=Math.ceil(c.coef*refCycle()*h);
     // en variante dure, la Capsule ne doit pas non plus amorcer le défi
     if(CHAL_NO_RES)S.ore=0;
     /* Mains liées démarre sinon à zéro revenu : sans clic, sans structure et
@@ -2102,7 +2149,6 @@ function bilanSortie(c){
   else l.push(t("ch_out_lost",fmt(butActif())));
   if(cap)l.push(t("ch_out_cap",tr(RES.find(r=>r.id==="capsule").nm),cap,
                 fmt(1e4*Math.pow(25,cap))));
-  l.push(t("ch_out_auto"));
   return l.join("\n");
 }
 /* Quitter : nouvelle remise à zéro, aucune pénalité, et l'antimatière gagnée
@@ -2364,7 +2410,7 @@ function getAutoCard(a){
 function autoEtat(a){
   const l=alvl(a.id);
   if(a.id==="clic")  return t("au_e_clic",l,l>1?"s":"");
-  if(a.id==="contre"){const g=autoGen();return t("au_e_contre",g?g.ico+" "+tr(g.nm):"—")}
+  if(a.id==="contre"){const g=autoGen();return t("au_e_contre",g?g.ico+" "+tr(g.nm):"—",autoQte())}
   if(a.id==="ing")   return t("au_e_ing");
   if(a.id==="sonde") return t("au_e_sonde",SONDE_S);
   return t("au_e_cycle",fmt(cycSeuil()));
@@ -2396,7 +2442,7 @@ function priceInfo(cost,cur,rate,unit){
 }
 
 /* ---------- squelette statique des onglets (reconstruit au changement de langue) ---------- */
-let QBTN=[], ACHNODES=[], ACHSECS=[], STROWS=[], SWROWS=[], CHNODES=[], CYCIN=null, GENSEL=null;
+let QBTN=[], QGEN=[], ACHNODES=[], ACHSECS=[], STROWS=[], SWROWS=[], CHNODES=[], CYCIN=null, GENSEL=null;
 function buildSkeleton(){
   /* --- Extraction --- */
   $("#pGen").innerHTML=
@@ -2464,6 +2510,12 @@ function buildSkeleton(){
   GENSEL.className="sel"; GENSEL._sig=null;
   GENSEL.addEventListener("change",()=>{S.autoGen=GENSEL.value;render()});
   $("#auGenCtl").appendChild(GENSEL);
+  QGEN=CONTRE_QTE.map(q=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="qty"; b.textContent="×"+q; b._q=q;
+    bindAction(b,()=>{S.autoQte=q;render()});
+    $("#auGenCtl").appendChild(b); return b;
+  });
   /* Une ligne par automate, montrée seulement s'il est possédé : les
      interrupteurs remontent avec les réglages, la liste du bas ne sert plus
      qu'à l'achat et aux niveaux. */
@@ -2621,9 +2673,17 @@ function renderGens(){
 function upVisible(u){
   // une amélioration qui vise une structure inexistante n'a rien à faire là
   if(u.kind==="gen"&&chalRegle("dwarf")&&!gensActives().some(g=>g.id===u.target))return false;
-  return (!u.req||u.req(S))&&S.runOre>=u.cost*0.08;
+  if(u.req&&!u.req(S))return false;
+  /* ...ou simplement payable tout de suite. La Capsule de départ offre du
+     minerai à chaque nouveau cycle — 2,44 T au niveau maximum — alors que
+     `runOre` est encore à zéro : le joueur avait de quoi acheter dix
+     améliorations et l'onglet lui répondait « Rien de neuf pour l'instant ».
+     Cacher ce qu'on peut s'offrir n'est jamais la bonne réponse. */
+  return S.runOre>=u.cost*0.08 || S.ore>=u.cost;
 }
-function upBadge(){return UPS.filter(u=>!S.ups[u.id]&&(!u.req||u.req(S))&&S.ore>=u.cost).length}
+/* Le badge compte EXACTEMENT ce que la liste affiche : il testait la condition
+   d'achat sans la condition de visibilité, et les deux pouvaient diverger. */
+function upBadge(){return UPS.filter(u=>!S.ups[u.id]&&upVisible(u)&&S.ore>=u.cost).length}
 
 /* en-têtes de catégorie réutilisés d'un rendu à l'autre, comme les cartes */
 const UPHEADS=new Map();
@@ -2728,11 +2788,10 @@ function renderAuto(){
   const poss=SWROWS.filter(x=>alvl(x.a.id)>0);
   poss.forEach(({a,r})=>{
     const coupe=!aOn(a.id);
-    // en défi : tout est suspendu et verrouillé, sauf ce que le joueur avait
-    // lui-même coupé, qui garde l'apparence d'un automate éteint
-    const enDefi=!!S.chal;
-    const pause=enDefi?!S.autoOff[a.id]:enPause(a);
-    const verrou=enDefi?true:verrouille(a);
+    // le relanceur est le seul suspendu par un défi
+    const susp=a.id==="cycle"&&!!S.chal&&!S.autoOff[a.id];
+    const pause=susp?true:enPause(a);
+    const verrou=susp?true:verrouille(a);
     txt(r.q.ico,a.ico); txt(r.q.nm,tr(a.nm));
     txt(r.q.st,etatTexte(a));
     cls(r,"off",coupe&&!pause); cls(r,"pause",!!pause);
@@ -2762,7 +2821,8 @@ function renderAuto(){
     }
     const cible=autoGenId();
     if(GENSEL.value!==cible)GENSEL.value=cible;
-    const g=autoGen(), cout=genCost(g,1), manque=cout-S.ore;
+    QGEN.forEach(b=>cls(b,"on",autoQte()===b._q));
+    const g=autoGen(), n=autoQte(), cout=genCost(g,n), manque=cout-S.ore;
     if(manque<=0) html($("#auGenNow"),t("au_gen_ready",fmt(cout)));
     else{
       const r=perSec();
@@ -2907,12 +2967,13 @@ function render(){
   else if(currentTab==="ac")renderAchs();
   else renderStats();
   majChalBar();
-  // Automatisation et Recherche ne servent à rien pendant un défi : automates
-  // en pause, achats bloqués. On le dit deux fois — onglet grisé et bandeau en
-  // tête de panneau — parce qu'un onglet grisé seul n'explique pas pourquoi.
+  // Recherche est inutilisable pendant un défi (achats bloqués) : onglet grisé
+  // ET bandeau en tête de panneau, parce qu'un onglet grisé seul n'explique pas
+  // pourquoi. Automatisation reste pleinement utilisable — seul le relanceur de
+  // cycle est suspendu, ce que dit le bandeau, sans griser l'onglet.
   const bloque=!!S.chal;
-  cls($("#tabAu"),"chdim",bloque); cls($$(".tab").find(x=>x.dataset.p==="pr"),"chdim",bloque);
-  show($("#auLock"),bloque); show($("#prLock"),bloque);
+  cls($$(".tab").find(x=>x.dataset.p==="pr"),"chdim",bloque);
+  show($("#auLock"),bloque&&alvl("cycle")>0); show($("#prLock"),bloque);
   let nouv=show($("#tabAu"),S.amTotal>0);           // l'onglet apparaît au premier cycle
   if(show($("#tabCh"),chalVisible()))nouv=true;     // celui des défis, après 10 cycles
   if(nouv)majNavFade();
@@ -3075,16 +3136,23 @@ function runAutos(dt){
     if(autoAcc.contre>=CONTRE_S){
       autoAcc.contre=0;
       /* Une seule cible, celle choisie par le joueur. Pas d'arbitrage à faire
-         avec l'Ingénieur : ils ne tournent jamais en même temps. */
-      const g=autoGen(), c=g?genCost(g,1):Infinity;
-      if(c<=S.ore){ S.ore-=c; S.gens[g.id]=(S.gens[g.id]||0)+1; }
+         avec l'Ingénieur : ils ne tournent jamais en même temps.
+         La quantité suit le réglage : on achète le lot entier ou rien, comme le
+         bouton ×N du joueur — pas d'achat partiel qui viderait la réserve sans
+         atteindre le lot demandé. */
+      const g=autoGen(), n=autoQte(), c=g?genCost(g,n):Infinity;
+      if(c<=S.ore){ S.ore-=c; S.gens[g.id]=(S.gens[g.id]||0)+n; }
     }
   }
 
   if(aOn("sonde")&&$("#anomaly").style.display==="block"
      &&Date.now()-anomNee>=SONDE_S*1000){ S.asonde=(S.asonde||0)+1; collectAnom(true); }
 
-  if(aOn("cycle")){
+  // Le relanceur reste en pause pendant un défi : sinon il remettrait `runOre`
+  // à zéro dès le seuil atteint, effaçant la progression en boucle et sans rien
+  // dire. C'est le seul automate qui contourne le mécanisme du défi au lieu de
+  // le subir.
+  if(aOn("cycle")&&!S.chal){
     if(amGain()>=cycSeuil()){ S.acyc=(S.acyc||0)+1; doPrestige(true); }
   }
 }

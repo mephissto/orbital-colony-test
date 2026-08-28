@@ -128,13 +128,21 @@ terms, the whole multiplied by the global multiplier:
 click = ( strike + echo ) × click upgrades × Servo arms × active click buff
 
   strike = 1 × global multiplier
-  echo   = output/s × best resonator owned
+  echo   = output/s × max( best resonator owned , base echo 7 % )
 ```
 
+- **Base echo: 7 %** (3.0.0). Without it the echo only exists once the first
+  resonator is bought (200,000 ore), and the strike — a base of 1 that never
+  grows — drops off immediately: measured on a fresh run, the click stayed at
+  1–1.5 while output reached 246/s, i.e. **0.006 s of output per click** after an
+  hour. With the base echo the click is worth **~0.10 s of output** permanently,
+  from the first minute. It is applied **inside** the echo, not as a floor on the
+  result: a floor on the final value would hide the effect of click upgrades —
+  exactly the defect fixed in 2.30.0.
 - **Click upgrades** — **on the click's total value**, echo included: Ion hammer
-  ×1.5, Exoskeleton ×1.6, Capacitor ×1.8, Magnetic field ×2. In full: **×8.64**.
-  Each is worth exactly its ×N however far along you are, which is what the card
-  states as a single number.
+  ×1.4, Exoskeleton ×1.5, Capacitor ×1.6, Magnetic field ×1.7. In full:
+  **×5.71**. Each is worth exactly its ×N however far along you are, which is
+  what the card states as a single number.
 - **Servo-assisted arms** (research) — **+8 % per level on the whole click**,
   12 levels, i.e. **×2.52** at maximum. Up to 2.32.0 it was ×2 per level **on the
   strike alone**: measured, an advanced player restarting a cycle ended up with
@@ -142,33 +150,44 @@ click = ( strike + echo ) × click upgrades × Servo arms × active click buff
   8,675 antimatter for nothing. The price ladder has not moved by a single
   antimatter, which keeps the research consistent with the other seven (whose
   first levels all cost between 6 and 30).
-- **Resonators** — add a percentage of your output per second to every click:
-  v1 +2 %, v2 +5 %, v3 +10 %. Only the best one counts, they do not stack. Late
-  in the game this term dominates by far.
+- **Resonators** — replace the base echo with a higher percentage of your output
+  per second: v1 +9 %, v2 +12 %, v3 +15 %. Only the best one counts, they do not
+  stack.
 
-**The balance rule: a click must never exceed output/s.** With resonator v3 at
-40 % (up to 2.30.0) the click was already worth 0.40 s of output **before any
-click upgrade** — so no multiplier above ×2.5 could be added without breaking the
-rule. That is why the resonators dropped to 2/5/10 % at the same time as the
-multipliers moved to ×1.5–×2: without the Servo arms, the click **peaks at
-0.86 s of output** while staying 2.15× stronger than it originally was.
+**The balance rule: a click must never exceed output/s.** The click's ceiling is
+the product **best echo × click multipliers**. With resonator v3 at 40 % (up to
+2.30.0) the click was already worth 0.40 s of output **before any click upgrade**
+— so no multiplier above ×2.5 could be added without breaking the rule. That is
+why the resonators dropped to 2/5/10 % at the same time as the multipliers moved
+to ×1.5–×2.
+
+3.0.0 replays that same trade-off in the other direction: **the multipliers drop
+to ×1.4–×1.7 (×5.71 in full) so the echo can go up** (7 % base, resonators
+9/12/15 %). Click power thus moves towards the **early** game, where it was
+missing, without changing the ceiling at all: 0.15 × 5.71 = **0.86 s of output**,
+exactly the previous value.
 
 **The only thing allowed to cross that ceiling is the Servo arms research** — and
-only once all twelve levels are paid for: at 12/12 the click reaches **2.18 s of
+only once all twelve levels are paid for: at 12/12 the click reaches **2.16 s of
 output**. That overshoot is deliberate: a player who sank 8,675 antimatter into a
 research is entitled to see its effect.
 
-| Stage | Click upgrades | Servo | Output/s | Click | sec. of output/click |
-|---|---|---|---|---|---|
-| First minutes | 0 | 0/12 | 3 | 1 | 0.33 |
-| Exoskeleton | 2 | 1/12 | 485 | 3.6 | 0.01 |
-| Resonator v2 | 3 | 7/12 | 20.5M | 7.61M | 0.37 |
-| Magnetic field | 4 | 9/12 | 822M | 710M | 0.86 |
-| Resonator v3 | 4 | 11/12 | 80.6B | 162B | 2.01 |
-| Very advanced run | 4 | 12/12 | 407T | 887T | **2.18** |
+| Stage | Echo | Click upgrades | Servo | sec. of output/click |
+|---|---|---|---|---|
+| First minutes | 7 % base | 0 | 0/12 | 0.40 |
+| Exoskeleton | 7 % base | 2 | 1/12 | 0.16 |
+| Resonator v2 | 12 % | 3 | 7/12 | 0.69 |
+| Magnetic field | 12 % | 4 | 9/12 | 1.37 |
+| Resonator v3 | 15 % | 4 | 11/12 | 2.00 |
+| Very advanced run | 15 % | 4 | 12/12 | **2.16** |
+
+The dip to 0.16 s at the second stage is expected: the first two click upgrades
+land before the first resonator, and that is the one moment where the strike (the
+constant term) has already dropped off while the echo has not yet grown. Before
+3.0.0 that dip was 0.01 s.
 
 To watch if these values change: the **Mining satellites** click up to 10 times a
-second. At 2.18 s of output per click they therefore yield **21.8× passive
+second. At 2.16 s of output per click they therefore yield **21.6× passive
 output** — automatic clicking remains, as before, the main ore source of an
 advanced cycle.
 
@@ -239,12 +258,12 @@ units and multiplies that one structure's output:
 
 A fully upgraded structure produces **×1,440**.
 
-**Click upgrades** — on the whole click: Ion hammer ×1.5 (400), Exoskeleton ×1.6
-(35,000, from 50 clicks), Capacitor ×1.8 (5e6, from 250 clicks), Magnetic field
-×2 (2e9, from 600 clicks). In full: **×8.64**.
+**Click upgrades** — on the whole click: Ion hammer ×1.4 (400), Exoskeleton ×1.5
+(35,000, from 50 clicks), Capacitor ×1.6 (5e6, from 250 clicks), Magnetic field
+×1.7 (2e9, from 600 clicks). In full: **×5.71**.
 
-**Resonators** — v1 +2 % (2e5), v2 +5 % (4e8, requires v1), v3 +10 % (6e11,
-requires v2).
+**Resonators** — v1 +9 % (2e5), v2 +12 % (4e8, requires v1), v3 +15 % (6e11,
+requires v2). Below them, the base echo is already worth **7 %**.
 
 **Global upgrades** — Logistics network ×1.25 (5e4), Coordination AI ×1.5 (8e6),
 Quantum relay ×2 (1.2e9), Bio-engineering ×2.5 (3e11), Singularity engine ×4

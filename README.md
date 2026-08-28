@@ -133,12 +133,21 @@ est la somme de deux termes, le tout multiplié par le multiplicateur global :
 clic = ( frappe + écho ) × améliorations de clic × Bras servo × bonus de clic
 
   frappe = 1 × multiplicateur global
-  écho   = production/s × meilleur résonateur possédé
+  écho   = production/s × max( meilleur résonateur possédé , écho de base 7 % )
 ```
 
+- **Écho de base : 7 %** (3.0.0). Sans lui, l'écho n'existe qu'une fois le
+  premier résonateur acheté (200 000 de minerai) et la frappe, une base de 1 qui
+  ne grandit jamais, décroche immédiatement : mesuré sur une partie neuve, le
+  clic restait à 1–1,5 pendant que la production atteignait 246/s, soit **0,006 s
+  de production par clic** au bout d'une heure. Avec l'écho de base le clic vaut
+  **~0,10 s de production** en permanence dès la première minute. Il est appliqué
+  **dans** l'écho et non comme plancher sur le résultat : un plancher sur la
+  valeur finale masquerait l'effet des améliorations de clic, exactement le
+  défaut corrigé en 2.30.0.
 - **Améliorations de clic** — **sur la valeur totale du clic**, écho compris :
-  Marteau ionique ×1,5, Exosquelette ×1,6, Condensateur ×1,8, Champ magnétique
-  ×2. Au complet : **×8,64**. Chacune vaut exactement son ×N quel que soit ton
+  Marteau ionique ×1,4, Exosquelette ×1,5, Condensateur ×1,6, Champ magnétique
+  ×1,7. Au complet : **×5,71**. Chacune vaut exactement son ×N quel que soit ton
   avancement, ce que la carte annonce en un seul nombre.
 - **Bras servo-assistés** (recherche) — **+8 % par niveau sur le clic entier**,
   12 niveaux, soit **×2,52** au maximum. Jusqu'à la 2.32.0 c'était ×2 par niveau
@@ -147,35 +156,46 @@ clic = ( frappe + écho ) × améliorations de clic × Bras servo × bonus de cl
   12 niveaux — 8 675 antimatière pour rien. Le barème de prix n'a pas bougé d'un
   antimatière, ce qui garde la recherche cohérente avec les sept autres (dont les
   premiers niveaux coûtent tous entre 6 et 30).
-- **Résonateurs** — ajoutent un pourcentage de ta production par seconde à
-  chaque clic : v1 +2 %, v2 +5 %, v3 +10 %. Seul le meilleur compte, ils ne se
-  cumulent pas entre eux. En fin de partie c'est ce terme qui domine largement.
+- **Résonateurs** — remplacent l'écho de base par un pourcentage plus élevé de ta
+  production par seconde : v1 +9 %, v2 +12 %, v3 +15 %. Seul le meilleur compte,
+  ils ne se cumulent pas entre eux.
 
 **La règle d'équilibrage : un clic ne doit jamais dépasser la production/s.**
+Le plafond du clic est le produit **meilleur écho × multiplicateurs de clic**.
 Avec le résonateur v3 à 40 % (jusqu'à la 2.30.0), le clic valait déjà 0,40 s de
 production **avant toute amélioration de clic** — donc aucun multiplicateur
 au-dessus de ×2,5 ne pouvait s'y ajouter sans casser la règle. C'est pourquoi les
-résonateurs sont descendus à 2/5/10 % en même temps que les multiplicateurs sont
-passés à ×1,5–×2 : sans les Bras servo, le clic **plafonne à 0,86 s de
-production** tout en restant 2,15× plus fort qu'à l'origine.
+résonateurs sont descendus à 2/5/10 % en même temps que les multiplicateurs
+passaient à ×1,5–×2.
+
+La 3.0.0 rejoue ce même arbitrage dans l'autre sens : **les multiplicateurs sont
+abaissés à ×1,4–×1,7 (×5,71 au total) pour pouvoir remonter l'écho** (base 7 %,
+résonateurs 9/12/15 %). La puissance du clic se déplace ainsi vers le **début**
+de partie, là où elle manquait, sans rien changer au plafond : 0,15 × 5,71 =
+**0,86 s de production**, exactement la valeur d'avant.
 
 **La seule chose autorisée à franchir ce plafond, ce sont les Bras servo** — et
-seulement au prix des douze niveaux payés : à 12/12 le clic atteint **2,18 s de
+seulement au prix des douze niveaux payés : à 12/12 le clic atteint **2,16 s de
 production**. C'est un dépassement assumé, un joueur qui a investi 8 675
 antimatière dans une recherche a le droit d'en voir l'effet.
 
-| Étape | Amél. de clic | Servo | Production/s | Clic | sec. de prod./clic |
-|---|---|---|---|---|---|
-| Premières minutes | 0 | 0/12 | 3 | 1 | 0,33 |
-| Exosquelette | 2 | 1/12 | 485 | 3,6 | 0,01 |
-| Résonateur v2 | 3 | 7/12 | 20,5M | 7,61M | 0,37 |
-| Champ magnétique | 4 | 9/12 | 822M | 710M | 0,86 |
-| Résonateur v3 | 4 | 11/12 | 80,6B | 162B | 2,01 |
-| Partie très avancée | 4 | 12/12 | 407T | 887T | **2,18** |
+| Étape | Écho | Amél. de clic | Servo | sec. de prod./clic |
+|---|---|---|---|---|
+| Premières minutes | base 7 % | 0 | 0/12 | 0,40 |
+| Exosquelette | base 7 % | 2 | 1/12 | 0,16 |
+| Résonateur v2 | 12 % | 3 | 7/12 | 0,69 |
+| Champ magnétique | 12 % | 4 | 9/12 | 1,37 |
+| Résonateur v3 | 15 % | 4 | 11/12 | 2,00 |
+| Partie très avancée | 15 % | 4 | 12/12 | **2,16** |
+
+Le creux à 0,16 s au deuxième palier est normal : les deux premières
+améliorations de clic arrivent avant le premier résonateur, et c'est le seul
+moment où la frappe (le terme constant) a déjà décroché sans que l'écho ait
+grandi. Avant la 3.0.0 ce creux valait 0,01 s.
 
 À surveiller si ces valeurs bougent : les **Satellites d'extraction** cliquent
-jusqu'à 10 fois par seconde. À 2,18 s de production par clic, ils rapportent donc
-**21,8 fois la production passive** — le clic automatique reste, comme avant, la
+jusqu'à 10 fois par seconde. À 2,16 s de production par clic, ils rapportent donc
+**21,6 fois la production passive** — le clic automatique reste, comme avant, la
 première source de minerai d'un cycle avancé.
 
 **Historique de ce calcul.** Jusqu'à la 2.28.0, les améliorations de clic ne
@@ -246,11 +266,12 @@ nombre d'exemplaires et multiplie la production de cette seule structure :
 
 Une structure entièrement améliorée produit **×1 440**.
 
-**Améliorations de clic** — sur le clic entier : Marteau ionique ×1,5 (400),
-Exosquelette ×1,6 (35 000, dès 50 clics), Condensateur ×1,8 (5e6, dès 250 clics),
-Champ magnétique ×2 (2e9, dès 600 clics). Au complet : **×8,64**.
+**Améliorations de clic** — sur le clic entier : Marteau ionique ×1,4 (400),
+Exosquelette ×1,5 (35 000, dès 50 clics), Condensateur ×1,6 (5e6, dès 250 clics),
+Champ magnétique ×1,7 (2e9, dès 600 clics). Au complet : **×5,71**.
 
-**Résonateurs** — v1 +2 % (2e5), v2 +5 % (4e8, exige v1), v3 +10 % (6e11, exige v2).
+**Résonateurs** — v1 +9 % (2e5), v2 +12 % (4e8, exige v1), v3 +15 % (6e11, exige
+v2). En dessous, l'écho de base vaut déjà **7 %**.
 
 **Améliorations globales** — Réseau logistique ×1,25 (5e4), IA de coordination
 ×1,5 (8e6), Relais quantique ×2 (1,2e9), Bio-ingénierie ×2,5 (3e11), Moteur à
